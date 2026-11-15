@@ -1,0 +1,1 @@
+Browser passed: mixed upload, OCR review, validation, PDF/PDF and PDF/XLSX reconciliation, correction, failed-job retry, keyword/concept search, and mobile viewport.

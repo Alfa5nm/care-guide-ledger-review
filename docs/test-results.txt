@@ -1,0 +1,23 @@
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+test_ambiguous_and_invalid_numbers_are_not_invented (test_system.AppTests.test_ambiguous_and_invalid_numbers_are_not_invented) ... ok
+test_correction_revalidation_search_and_revision_conflict (test_system.AppTests.test_correction_revalidation_search_and_revision_conflict) ... ok
+test_csv_xlsx_and_xls (test_system.AppTests.test_csv_xlsx_and_xls) ... ok
+test_digital_pdf_and_multipage_continuation (test_system.AppTests.test_digital_pdf_and_multipage_continuation) ... ok
+test_duplicate_and_cross_document_reconciliation (test_system.AppTests.test_duplicate_and_cross_document_reconciliation) ... ok
+test_encrypted_pdf_failure (test_system.AppTests.test_encrypted_pdf_failure) ... ok
+test_keyword_semantic_filter_and_source_text (test_system.AppTests.test_keyword_semantic_filter_and_source_text) ... ok
+test_mixed_batch_failure_isolated_and_retryable (test_system.AppTests.test_mixed_batch_failure_isolated_and_retryable) ... ok
+test_model_client_request_and_schema_quotes (test_system.AppTests.test_model_client_request_and_schema_quotes) ... ok
+test_model_quotes_unsupported_values_and_fallback (test_system.AppTests.test_model_quotes_unsupported_values_and_fallback) ... WARNING:root:Configured model was unavailable; local extraction completed.
+ok
+test_partial_document_is_marked_for_review (test_system.AppTests.test_partial_document_is_marked_for_review) ... ok
+test_real_ocr_scanned_pdf_jpg_png_tiff (test_system.AppTests.test_real_ocr_scanned_pdf_jpg_png_tiff) ... ok
+test_recovery_after_expired_lease (test_system.AppTests.test_recovery_after_expired_lease) ... ok
+test_sanitized_upload_and_local_origin_boundary (test_system.AppTests.test_sanitized_upload_and_local_origin_boundary) ... ok
+test_validation_math (test_system.AppTests.test_validation_math) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 1.186s
+
+OK

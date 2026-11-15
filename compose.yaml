@@ -1,0 +1,19 @@
+services:
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ledger-data:/workspace/data
+  worker:
+    build: .
+    command: ["python", "-m", "app.worker"]
+    environment:
+      DOCINTEL_LLM_URL: ${DOCINTEL_LLM_URL:-}
+      DOCINTEL_LLM_MODEL: ${DOCINTEL_LLM_MODEL:-}
+      DOCINTEL_LLM_KEY: ${DOCINTEL_LLM_KEY:-}
+    volumes:
+      - ledger-data:/workspace/data
+
+volumes:
+  ledger-data:
