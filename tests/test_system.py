@@ -8,7 +8,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import fitz
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from app import db
 from app.invoice import grounded, invoice_record, read_candidates, validate
@@ -49,6 +51,53 @@ class AppTests(unittest.TestCase):
 
     def detail(self, document_id):
         return self.client.get(f"/api/documents/{document_id}").json()
+
+    def test_source_preview_renders_pdf_and_tiff_with_page_bounds(self):
+        for name, media in [
+            ("01-original-invoice.pdf", "pdf"),
+            (next(path.name for path in self.samples.glob("*.tiff")), "tiff"),
+        ]:
+            with self.subTest(media=media):
+                document_id = self.upload(name)[0]
+                url = f"/api/documents/{document_id}/preview"
+                response = self.client.get(url + "/1")
+                self.assertEqual(200, response.status_code, response.text[:150])
+                self.assertEqual("image/png", response.headers["Content-Type"])
+                self.assertEqual("no-store", response.headers["Cache-Control"])
+                with Image.open(io.BytesIO(response.content)) as preview:
+                    self.assertLessEqual(max(preview.size), 1600)
+                    size = preview.size
+                rotated = self.client.get(url + "/1?rotation=90")
+                self.assertEqual(200, rotated.status_code)
+                with Image.open(io.BytesIO(rotated.content)) as preview:
+                    self.assertEqual(size[::-1], preview.size)
+                self.assertEqual(422, self.client.get(url + "/1?rotation=45").status_code)
+                pages = int(response.headers["X-Page-Count"])
+                self.assertEqual(404, self.client.get(url + f"/{pages + 1}").status_code)
+
+        workbook = self.upload("10-billing-workbook.xlsx")[0]
+        self.assertEqual(415, self.client.get(f"/api/documents/{workbook}/preview/1").status_code)
+        self.assertEqual(404, self.client.get("/api/documents/unknown/preview/1").status_code)
+
+    def test_pdf_with_digital_header_reads_raster_invoice_fields(self):
+        with tempfile.TemporaryDirectory() as folder:
+            filename = Path(folder) / "mixed.pdf"
+            header = "Invoice number: MIX-12 / Supplier: Test Company"
+            image = io.BytesIO()
+            Image.new("L", (400, 100), 235).save(image, format="PNG")
+            with fitz.open() as document:
+                page = document.new_page()
+                page.insert_text((50, 50), header)
+                page.insert_image(fitz.Rect(50, 70, 450, 170), stream=image.getvalue())
+                document.save(filename)
+
+            with patch("app.process.ocr", return_value=f"{header}\nTotal: 500.00") as engine:
+                sections, warnings = extract(filename, ".pdf", lambda *_: None)
+
+        engine.assert_called_once()
+        self.assertEqual([], warnings)
+        self.assertEqual("Page 1", sections[0].source)
+        self.assertEqual(f"{header}\nTotal: 500.00", sections[0].text)
 
     def assert_invoice(self, filename):
         document_id = self.upload(filename)[0]

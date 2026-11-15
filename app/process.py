@@ -64,6 +64,84 @@ def row_value(value):
     return str(value)
 
 
+def read_pdf_page(page, warnings, source):
+    text = page.get_text(sort=True).strip()
+    zoom = min(2.4, (12_000_000 / max(1, page.rect.get_area())) ** 0.5)
+    matrix = fitz.Matrix(zoom, zoom)
+
+    def read_region(region):
+        bitmap = page.get_pixmap(matrix=matrix, clip=region, colorspace=fitz.csGRAY)
+        return ocr(Image.frombytes("L", (bitmap.width, bitmap.height), bitmap.samples))
+
+    if not text:
+        return read_region(page.rect)
+
+    blocks = [
+        (fitz.Rect(block[:4]) * page.rotation_matrix, block[4].strip())
+        for block in page.get_text("blocks")
+        if block[6] == 0 and block[4].strip()
+    ]
+    seen_lines = {" ".join(line.casefold().split()) for line in text.splitlines()}
+    recovered = []
+    seen_regions = set()
+    for image in page.get_image_info():
+        region = (fitz.Rect(image["bbox"]) * page.rotation_matrix) & page.rect
+        bounds = tuple(round(value, 1) for value in region)
+        if region.width < 36 or region.height < 12 or bounds in seen_regions:
+            continue
+        seen_regions.add(bounds)
+        try:
+            region_text = read_region(region)
+        except DocumentError as error:
+            warnings.append(f"{source}: image region {bounds}: {error}")
+            continue
+        lines = [
+            line for line in region_text.splitlines()
+            if line.strip() and " ".join(line.casefold().split()) not in seen_lines
+        ]
+        if lines:
+            recovered.append((region, "\n".join(lines)))
+
+    if not recovered:
+        return text
+    return "\n".join(
+        content for _, content in sorted(
+            blocks + recovered, key=lambda item: (item[0].y0, item[0].x0)
+        )
+    )
+
+
+def source_preview(path, suffix, index, rotation=0):
+    """Render a bounded still image from a PDF page or an image frame."""
+    if suffix == ".pdf":
+        with fitz.open(path, filetype="pdf") as document:
+            if document.needs_pass:
+                raise DocumentError("Password-protected PDFs are unsupported.")
+            if index >= len(document):
+                raise IndexError(index)
+            page = document[index]
+            longest = max(page.rect.width, page.rect.height)
+            zoom = min(2, 1600 / max(1, longest))
+            matrix = fitz.Matrix(zoom, zoom).prerotate(rotation)
+            bitmap = page.get_pixmap(matrix=matrix, colorspace=fitz.csRGB)
+            return bitmap.tobytes("png"), len(document)
+
+    with Image.open(path) as document:
+        count = getattr(document, "n_frames", 1)
+        if index >= count:
+            raise IndexError(index)
+        document.seek(index)
+        if document.width * document.height > Image.MAX_IMAGE_PIXELS:
+            raise DocumentError("Image exceeds the pixel limit.")
+        frame = ImageOps.exif_transpose(document)
+        frame.thumbnail((1600, 1600))
+        if rotation:
+            frame = frame.rotate(-rotation, expand=True)
+        output = io.BytesIO()
+        frame.convert("RGB").save(output, format="PNG")
+        return output.getvalue(), count
+
+
 def table_section(name, rows, budget):
     table = []
     lines = []
@@ -150,14 +228,8 @@ def extract(path: Path, suffix, progress):
                 if not 0 < len(document) <= MAX_UNITS:
                     raise DocumentError("PDF page count is outside the supported range.")
                 for n, page in enumerate(document, 1):
-                    def read_page():
-                        text = page.get_text(sort=True).strip()
-                        if len(text) >= 35 or (text and not page.get_images()):
-                            return text
-                        zoom = min(2.4, (12_000_000 / max(1, page.rect.get_area())) ** 0.5)
-                        bitmap = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), colorspace=fitz.csGRAY)
-                        return ocr(Image.frombytes("L", (bitmap.width, bitmap.height), bitmap.samples))
-                    add(f"Page {n}", read_page)
+                    source = f"Page {n}"
+                    add(source, lambda: read_pdf_page(page, warnings, source))
                     progress(5 + n * 55 // len(document), f"Reading page {n} of {len(document)}")
         elif suffix in {".xlsx", ".xls", ".csv"}:
             for index, section in enumerate(spreadsheet(path, suffix), 1):

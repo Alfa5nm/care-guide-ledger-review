@@ -4,18 +4,20 @@ import os
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
+from threading import Lock
 from typing import Literal
 from uuid import uuid4
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from PIL import Image
 from pydantic import BaseModel, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import db
 from .invoice import FIELDS, ITEM_FIELDS, clean_field, invoice_key, validate
-from .process import SUFFIXES
+from .process import DocumentError, MAX_UNITS, SUFFIXES, source_preview
 from .search import index_document, search
 from .worker import history
 
@@ -25,6 +27,7 @@ MAX_FILES = 12
 SUMMARY = "id,name,status,progress,stage,attempt,processing_ms,created_at"
 REVIEW_FLAGS = {"invalid_source_value", "ambiguous_field"}
 HOSTS = ["localhost", "127.0.0.1", "[::1]", "testserver"]
+PREVIEW_LOCK = Lock()
 
 
 @asynccontextmanager
@@ -57,6 +60,11 @@ async def local_boundary(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["X-Frame-Options"] = "DENY"
+    if request.url.path not in {"/docs", "/redoc"}:
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; "
+            "form-action 'self'; style-src 'self'; img-src 'self' blob:"
+        )
     if request.url.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
     return response
@@ -67,6 +75,33 @@ def health():
     with db.session() as conn:
         conn.execute("SELECT 1 FROM documents LIMIT 1")
     return {"status": "ok"}
+
+
+@app.get("/api/documents/{document_id}/preview/{page}")
+def preview_document(document_id: str, page: int, rotation: int = Query(0, ge=0, le=270, multiple_of=90)):
+    if not 1 <= page <= MAX_UNITS:
+        raise HTTPException(404, "Source page was not found.")
+    with db.session() as conn:
+        document = conn.execute(
+            "SELECT id, suffix FROM documents WHERE id = ?", (document_id,)
+        ).fetchone()
+    if document is None:
+        raise HTTPException(404, "Document was not found.")
+    suffix = document["suffix"]
+    if suffix in {".csv", ".xls", ".xlsx"}:
+        raise HTTPException(415, "Use extracted text to review this spreadsheet.")
+    path = db.ROOT / "uploads" / (document["id"] + suffix)
+    if not PREVIEW_LOCK.acquire(blocking=False):
+        raise HTTPException(503, "The preview renderer is busy. Try again shortly.")
+    try:
+        content, count = source_preview(path, suffix, page - 1, rotation)
+    except (IndexError, FileNotFoundError):
+        raise HTTPException(404, "Source page was not found.") from None
+    except (ValueError, RuntimeError, OSError, DocumentError, Image.DecompressionBombError):
+        raise HTTPException(422, "This source could not be rendered.") from None
+    finally:
+        PREVIEW_LOCK.release()
+    return Response(content, media_type="image/png", headers={"X-Page-Count": str(count)})
 
 
 def insert_upload(upload):
