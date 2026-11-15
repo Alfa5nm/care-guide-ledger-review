@@ -27,16 +27,22 @@ def verify(page, base, samples, frames, record=False):
             const line = document.createElement('div');
             line.textContent = subtitle;
             line.style.color = '#d8e9dc';
-            caption.append(heading, line); document.body.append(caption);
+            caption.append(heading, line);
+            (document.querySelector('dialog[open]') || document.body).append(caption);
         }""", [title, subtitle])
         if frames:
             page.screenshot(path=frames / f"{count:02d}.png")
         if record:
-            page.wait_for_timeout(2600)
+            page.wait_for_timeout(4300)
         page.evaluate("document.getElementById('qa-caption').remove()")
 
     page.goto(base)
     expect(page.get_by_role("heading", name="Documents", exact=True)).to_be_visible()
+    page.get_by_role("button", name="Collapse sidebar").click()
+    expect(page.get_by_role("button", name="Expand sidebar")).to_have_attribute("aria-expanded", "false")
+    if record:
+        chapter("Collapsible workspace", "Fold the sidebar into an icon rail to make more room for reviewing files.")
+    page.get_by_role("button", name="Expand sidebar").click()
     chapter("Ledger Review", "Upload multiple financial documents in one batch.")
     names = ["01-original-invoice.pdf", "02-conflicting-copy.pdf", "03-scanned-invoice.pdf",
              "10-billing-workbook.xlsx", "12-corrupt.pdf"]
@@ -45,12 +51,38 @@ def verify(page, base, samples, frames, record=False):
     chapter("Batch upload", "The API queues each file independently and the worker reports progress.")
     bad = page.get_by_role("row").filter(has_text="12-corrupt.pdf")
     expect(bad).to_contain_text("failed", timeout=15_000)
-    expect(page.get_by_role("row").filter(has_text="03-scanned-invoice.pdf")).to_contain_text("completed")
+    expect(page.get_by_role("row").filter(has_text="03-scanned-invoice.pdf")).to_contain_text("completed", timeout=15_000)
     chapter("Processing completed", "The scan was read by OCR. The broken PDF failed without stopping the other files.")
 
     page.get_by_role("button", name="03-scanned-invoice.pdf", exact=True).click()
     expect(page.get_by_role("heading", name="CG-2001")).to_be_visible()
     expect(page.get_by_text("Office paper")).to_be_visible()
+    source = page.get_by_role("region", name="Source preview")
+    expect(source.get_by_role("img", name="Original document, page 1")).to_be_visible()
+    source.get_by_role("button", name="Collapse media preview").click()
+    expect(source.get_by_role("img")).to_have_count(0)
+    source.get_by_role("button", name="Source preview").click()
+    expect(source.get_by_role("img", name="Original document, page 1")).to_be_visible()
+    page.wait_for_function("document.querySelector('.source-canvas img')?.naturalWidth > 0")
+    source.get_by_role("button", name="Zoom").click()
+    expect(source.get_by_role("button", name="Fit")).to_have_attribute("aria-pressed", "true")
+    source.get_by_role("button", name="Fit").click()
+    source.get_by_role("button", name="Expand").click()
+    viewer = page.get_by_role("dialog", name="Expanded source viewer")
+    expect(viewer).to_be_visible()
+    expect(viewer.get_by_role("region", name="Extracted invoice fields")).to_contain_text("Meridian Office")
+    with page.expect_response(lambda response: "rotation=90" in response.url and response.ok):
+        viewer.get_by_role("button", name="Rotate").click()
+    expect(viewer.get_by_role("img", name="Original document, page 1")).to_be_visible()
+    if record:
+        chapter("Expanded source viewer", "Rotate the scan and inspect the original page beside extracted fields and evidence quotes.")
+    page.keyboard.press("Escape")
+    expect(viewer).to_have_count(0)
+    expect(source.get_by_role("button", name="Expand")).to_be_focused()
+    page.get_by_role("button", name="Source & text").click()
+    expect(page.get_by_role("heading", name="Extracted text")).to_be_visible()
+    expect(page.locator("pre")).to_contain_text("Meridian Office")
+    page.get_by_role("button", name="Invoice review").click()
     chapter("OCR and source evidence", "Inspect the invoice fields and line items extracted from a scanned PDF.")
     page.get_by_role("button", name="Documents", exact=True).last.click()
     page.get_by_role("button", name="02-conflicting-copy.pdf", exact=True).click()
@@ -87,7 +119,7 @@ def verify(page, base, samples, frames, record=False):
     page.get_by_role("button", name="Documents", exact=True).last.click()
     page.get_by_role("button", name="12-corrupt.pdf", exact=True).click()
     page.get_by_role("button", name="Retry processing").click()
-    page.get_by_text("Processing history", exact=True).click()
+    page.get_by_role("button", name="Processing history", exact=True).click()
     expect(page.get_by_text("retry requested", exact=False)).to_be_visible()
     chapter("Failed-job reprocessing", "The retry creates a new attempt. A permanently corrupt file fails again.")
 
@@ -99,7 +131,7 @@ def verify(page, base, samples, frames, record=False):
     page.get_by_label("Search mode").select_option("semantic")
     page.get_by_role("main").get_by_role("button", name="Search", exact=True).click()
     expect(page.get_by_role("button", name="01-original-invoice.pdf", exact=True)).to_be_visible()
-    chapter("Semantic search", "Searching for “freight” finds invoices whose text says “Shipping fee”.")
+    chapter("Semantic search", 'Searching for "freight" finds invoices whose text says "Shipping fee".')
     assert not errors, errors
 
 
@@ -114,7 +146,7 @@ def main():
         args.frames.mkdir(parents=True, exist_ok=True)
     executable = os.getenv("DOCINTEL_BROWSER_EXECUTABLE") or None
     with sync_playwright() as runner:
-        browser = runner.chromium.launch(executable_path=executable, args=["--no-sandbox", "--single-process"],
+        browser = runner.chromium.launch(executable_path=executable,
                                          slow_mo=120 if args.video else 0)
         viewport = {"width": 1280, "height": 900}
         context_options = {"viewport": viewport}
@@ -127,6 +159,8 @@ def main():
         page.get_by_role("navigation").get_by_role("button", name="Documents").click()
         expect(page.get_by_role("heading", name="Documents", exact=True)).to_be_visible()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        if args.video:
+            page.wait_for_timeout(1800)
         if args.frames:
             page.screenshot(path=args.frames.parent / "mobile.png", full_page=True)
         context.close()
