@@ -27,6 +27,10 @@ Open [Ledger Review](http://127.0.0.1:8000) or [API docs](http://127.0.0.1:8000/
 
 A Docker configuration is also provided. Run `docker compose up --build` and open the same address. The named volume persists jobs and documents. The API is published on the host loopback.
 
+The Compose services run as a non-root user with read-only root filesystems, dedicated temporary storage, and dropped Linux capabilities. The worker starts after the API health check succeeds. The health check verifies SQLite connectivity.
+
+For a shared deployment, put the service behind TLS and authenticated access, isolate document rendering from the API process, and establish per-user document authorization, upload rate limits, retention, backup and restore, and monitoring. Test those controls and measure workload capacity before exposing financial documents to other users.
+
 ## Try the workflow
 
 ```sh
@@ -34,7 +38,7 @@ python -m tools.fixtures
 ```
 
 1. Upload `01-original-invoice.pdf`, `02-conflicting-copy.pdf`, `03-scanned-invoice.pdf`, `10-billing-workbook.xlsx` and `12-corrupt.pdf` from `artifacts/samples`.
-2. Open the scanned invoice to check OCR. Open the conflicting copy to see its arithmetic and duplicate flags.
+2. Open the scanned invoice to check OCR against the original in **Source preview**. Select **Expand** to see the page alongside extracted fields and evidence quotes. Use the page input or arrow keys to navigate the expanded viewer, **Rotate** to correct viewing orientation, and **Escape** to close. The preview supports PDF pages and image frames. Spreadsheets use **Extracted text**. Open the conflicting copy to see its arithmetic and duplicate flags.
 3. In the conflicting copy, select **Reconcile** and compare `CG-1001` against the original PDF or the workbook. Each comparison reports the identity check and equality, mismatch, or missing evidence per field.
 4. Edit the conflicting document’s total to `110` and save. The arithmetic flag clears. The duplicate flag remains because the supplier and invoice number still match another record.
 5. Search for `freight` in semantic mode to find an invoice that says `Shipping fee`. Select keyword mode to compare literal filtering.
@@ -58,6 +62,7 @@ For an optional model-assisted pass, set `DOCINTEL_LLM_URL` to an OpenAI-compati
 | GET | `/api/documents/{id}` | Get document status, first invoice page, warnings and history |
 | GET | `/api/documents/{id}/invoices?offset=0` | Get up to 100 invoice records per page |
 | GET | `/api/documents/{id}/text?offset=0` | Read extracted source text in chunks |
+| GET | `/api/documents/{id}/preview/{page}?rotation=90` | Render a 1-indexed PDF page or image frame as bounded PNG, optionally rotated in 90-degree steps. Returns `X-Page-Count`. |
 | PATCH | `/api/invoices/{id}` | Apply a revision-checked correction with `{"revision":0,"changes":{"total":"110"}}` |
 | POST | `/api/documents/{id}/retry` | Requeue a failed document |
 | GET | `/api/search?q=freight&mode=semantic` | Search by terms or concepts |
@@ -79,3 +84,7 @@ The app is designed for a trusted single-user workstation. The worker and API sh
 Limits include 12 files per request, 150 MiB per request, 64 MiB per file, and up to 2,000 PDF pages or TIFF frames per file. Language support and invoice segmentation were evaluated on English fixtures. The local rule path works with labeled templates and leaves unfamiliar layouts for review. It accepts ISO-style dates and period-decimal amounts with optional comma grouping. Workbook formulas are read from cached results, and formulas with missing cached results may leave fields empty. Concept search ranks a small finance vocabulary through sparse vectors and cosine similarity. The 1,000-page benchmarks cover a digital PDF and a mostly digital PDF with 10 scanned pages. A fully scanned long PDF incurs OCR cost per page.
 
 A shared deployment would need authentication and authorization, isolated parsers, retention controls, and a shared job/data store. SQLite and filesystem storage suit a local reviewer workflow. The benchmark does not establish multi-user production capacity.
+
+## Assessment deliverables
+
+See the [submission index](docs/SUBMISSION.md) for the architecture, schema, measured evaluation, test logs, AI disclosure and current captioned walkthrough.

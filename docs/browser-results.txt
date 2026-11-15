@@ -1,1 +1,3 @@
-Browser passed: mixed upload, OCR review, validation, PDF/PDF and PDF/XLSX reconciliation, correction, failed-job retry, keyword/concept search, and mobile viewport.
+# Browser verification
+
+A live Edge walkthrough using a separate API and worker passed with synthetic documents. It covered batch upload, OCR and source previews, validation, PDF-to-PDF and PDF-to-Excel reconciliation, manual corrections, corrupt-file retry, keyword and concept search, and mobile width. The sidebar toggle was separately checked at desktop and mobile widths. The recording shows the current browser workflow.

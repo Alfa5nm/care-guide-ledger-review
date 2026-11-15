@@ -1,7 +1,12 @@
-# Submission checklist
+# Care Guide assessment deliverables
 
-- Publish the Git repository and check that the intended reviewer can access it.
-- Include the README, source code, architecture and schema, test output, measured evaluation, and AI disclosure.
-- Upload the recorded walkthrough and confirm it opens for the reviewer.
-- Add the portfolio and updated CV to the original Reply All thread. Keep `apply@careguidebd.com` included.
-- Complete the CV's education results, work history, and both official reference email addresses with verified details.
+| Deliverable | Location |
+|---|---|
+| Source and setup | [README](../README.md), `app/`, `frontend/`, `requirements.txt`, and `compose.yaml` |
+| Architecture and database schema | [Mermaid diagrams](ARCHITECTURE.md) and [SQLite DDL](../app/schema.sql) |
+| Automated tests and results | `tests/`, [test log](test-results.txt), and [browser verification](browser-results.txt) |
+| Measured evaluation | [Report](EVALUATION.md) and [raw results](evaluation.json) |
+| Current walkthrough | [Download the captioned MP4](../demo/Ledger_Review_Walkthrough.mp4) |
+| AI use and prompts | [Disclosure](AI_USAGE.md) |
+
+The workspace runs locally against its own data directory. Sample documents in the walkthrough are synthetic. The reconstructed commit sequence starts with the [concept](CONCEPT.md) and architecture, then imports the archived working baseline before layering the later changes. Each commit records the actual assembly date.
