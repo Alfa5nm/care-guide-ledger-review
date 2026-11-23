@@ -17,4 +17,4 @@ COPY --from=ui /build/dist ./frontend/dist/
 RUN useradd -m -u 10001 ledger && install -d -o ledger -g ledger /workspace/data
 USER ledger
 EXPOSE 8000
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/bin/sh", "/workspace/deploy/railway-start.sh"]
