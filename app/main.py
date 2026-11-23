@@ -104,9 +104,12 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=HOSTS)
 
 
 @app.get("/api/health")
-def health():
+def health(response: Response):
     with db.session() as conn:
         conn.execute("SELECT 1 FROM documents LIMIT 1")
+    revision = os.getenv("DOCINTEL_RELEASE_COMMIT")
+    if revision:
+        response.headers["X-Ledger-Revision"] = revision
     return {"status": "ok"}
 
 
@@ -220,6 +223,7 @@ def invoice_detail(conn, row):
     result = dict(row)
     for field in ("data", "issues", "evidence"):
         result[field] = json.loads(result[field])
+    result["evidence_pages"] = result["evidence"].pop("_pages", {})
     key = result.pop("duplicate_key")
     if key:
         duplicates = conn.execute(

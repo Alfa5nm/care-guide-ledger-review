@@ -146,11 +146,26 @@ function formatValue(value) {
   return value;
 }
 
-function InvoiceView({ invoice, notify, onSaved, compare }) {
+function InvoiceView({ invoice, notify, onSaved, compare, guide, onGuide, spreadsheet }) {
   const [draft, setDraft] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [receipt, setReceipt] = useState(null);
+  const editor = useRef(null);
+  const focusField = useRef(null);
   const data = draft || invoice.data;
   const items = data.line_items || [];
+  useEffect(() => {
+    if (draft && focusField.current) {
+      const target = editor.current.elements.namedItem(focusField.current);
+      target?.focus();
+      focusField.current = null;
+    }
+  }, [draft]);
+  function review(issue) {
+    if (fields[issue.field] && issue.field !== 'line_items') focusField.current = issue.field;
+    setDraft(draft ? { ...draft } : { ...invoice.data });
+    onGuide(invoice, issue.field);
+  }
   function itemChange(index, field, value) {
     setDraft({ ...draft, line_items: items.map((item, i) => i === index ? { ...item, [field]: value } : item) });
   }
@@ -160,7 +175,11 @@ function InvoiceView({ invoice, notify, onSaved, compare }) {
     if (!Object.keys(changes).length) return setDraft(null);
     setBusy(true);
     try {
-      await api('/invoices/' + invoice.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ revision: invoice.revision, changes }) });
+      const saved = await api('/invoices/' + invoice.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ revision: invoice.revision, changes }) });
+      setReceipt({
+        changes: Object.keys(changes).map(field => ({field, before: invoice.data[field], after: saved.data[field]})),
+        cleared: invoice.issues.filter(issue => !saved.issues.some(next => next.code === issue.code && next.field === issue.field))
+      });
       setDraft(null);
       await onSaved();
       notify('Correction saved. Validation updated.');
@@ -170,13 +189,26 @@ function InvoiceView({ invoice, notify, onSaved, compare }) {
       setBusy(false);
     }
   }
-  return <form onSubmit={save}>
+  return <form ref={editor} onSubmit={save}>
     <div className="section-head"><div><h2>{invoice.data.invoice_number || 'Unidentified invoice'}</h2><small>{invoice.source} · {invoice.extraction_method}</small></div>
       <Status value={invoice.needs_review ? 'Needs review' : 'Checks passed'}/></div>
-    {invoice.issues.length > 0 && <div className="flag-list"><h3>Validation flags</h3><ul>{invoice.issues.map((issue, index) => <li key={index}>{issue.message}</li>)}</ul></div>}
+    {invoice.issues.length > 0 && <div className="flag-list"><h3>Validation flags</h3><ul>{invoice.issues.map((issue, index) => <li key={index}>
+      <button type="button" className="review-flag" onClick={() => review(issue)}>{issue.message}</button>
+    </li>)}</ul></div>}
+    {guide && <section className="review-evidence" aria-label="Guided exception review">
+      <h3>{fields[guide.field] || 'Invoice'} evidence</h3>
+      {guide.quote ? <blockquote>{guide.quote}</blockquote> : <p>No source quote is available for this flag. Check the original before entering a value.</p>}
+      {guide.page && <p>Source {guide.sourceKind} {guide.page}</p>}
+      {spreadsheet && <p>Source: {invoice.source}. <button type="button" onClick={spreadsheet}>Open extracted text</button></p>}
+    </section>}
+    {receipt && <section className="review-evidence" aria-label="Correction result">
+      <h3>Correction result</h3>
+      <ul>{receipt.changes.map(({field, before, after}) => <li key={field}><strong>{fields[field]}</strong>: {formatValue(before)} → {formatValue(after)}</li>)}</ul>
+      {receipt.cleared.length > 0 ? <p>Cleared flags: {receipt.cleared.map(issue => issue.message).join(' ')}</p> : <p>No flags cleared.</p>}
+    </section>}
     <div className="field-grid">
       {Object.entries(fields).filter(([key]) => key !== 'line_items').map(([key, label]) => <label key={key} className="fact"><span>{label}</span>
-        {draft ? <input aria-label={label} value={data[key] ?? ''} onChange={event => setDraft({ ...draft, [key]: event.target.value })}/>
+        {draft ? <input name={key} aria-label={label} value={data[key] ?? ''} onChange={event => setDraft({ ...draft, [key]: event.target.value })}/>
         : <strong>{formatValue(data[key])}</strong>}
         {typeof invoice.evidence[key] === 'string' && <small title={invoice.evidence[key]}>{invoice.evidence[key]}</small>}
       </label>)}
@@ -250,6 +282,12 @@ function Detail({ id, name, docs, notify, refresh, back }) {
   const [raw, setRaw] = useState(null);
   const [run, setRun] = useState(0);
   const [section, setSection] = useState('review');
+  const [guide, setGuide] = useState(null);
+  const [showGuidedText, setShowGuidedText] = useState(false);
+  const guidedTextHeading = useRef(null);
+  useEffect(() => {
+    if (showGuidedText) guidedTextHeading.current?.focus();
+  }, [showGuidedText]);
   async function load() {
     const next = await api('/documents/' + id);
     setDoc(next);
@@ -274,6 +312,17 @@ function Detail({ id, name, docs, notify, refresh, back }) {
   }, [id, page, run]);
   const current = invoices.find(invoice => invoice.id === selected) || invoices[0];
   const canPreview = doc && !['.csv', '.xls', '.xlsx'].includes(doc.suffix);
+  function startGuide(invoice, field) {
+    const single = invoice.source.match(/^(Page|Image) (\d+)$/);
+    const storedPage = invoice.evidence_pages?.[field];
+    setGuide({
+      id: invoice.id, field,
+      quote: typeof invoice.evidence[field] === 'string' ? invoice.evidence[field] : null,
+      page: canPreview ? storedPage || (single ? Number(single[2]) : null) : null,
+      sourceKind: doc.suffix === '.pdf' ? 'page' : 'image',
+    });
+  }
+  const activeGuide = guide?.id === current?.id ? guide : null;
   function show(next) {
     if (next !== section) transition(() => setSection(next));
     if (next === 'source' && !raw) readText(0);
@@ -317,9 +366,18 @@ function Detail({ id, name, docs, notify, refresh, back }) {
         {(doc.invoice_count > 1) && <div className="invoice-select"><select aria-label="Invoice record" value={current.id} onChange={event => {setSelected(Number(event.target.value)); setComparison(null);}}>
           {invoices.map(invoice => <option key={invoice.id} value={invoice.id}>{invoice.data.invoice_number || 'Unidentified'} · {invoice.source}</option>)}
         </select>{page > 0 && <button onClick={() => setPage(page - 100)}>Previous 100</button>}{page + 100 < doc.invoice_count && <button onClick={() => setPage(page + 100)}>Next 100</button>}</div>}
-        <InvoiceView key={current.id} invoice={current} notify={notify} onSaved={load} compare={invoice => {setComparison(invoice); show('compare');}}/>
+        <InvoiceView key={current.id} invoice={current} notify={notify} onSaved={load}
+          guide={activeGuide} onGuide={startGuide} spreadsheet={canPreview ? null : () => {setShowGuidedText(true); readText(0);}}
+          compare={invoice => {setComparison(invoice); show('compare');}}/>
+        {activeGuide && !canPreview && showGuidedText && <section className="review-evidence" aria-label="Spreadsheet source">
+          <h3 ref={guidedTextHeading} tabIndex={-1}>Extracted text</h3>
+          {raw && <><pre>{raw.text}</pre><div className="actions">
+            {raw.offset > 0 && <button onClick={() => readText(Math.max(0, raw.offset - 50000))}>Previous page</button>}
+            {raw.offset + raw.text.length < raw.total && <button onClick={() => readText(raw.offset + raw.text.length)}>Next page</button>}
+          </div></>}
+        </section>}
       </section>{canPreview &&
-        <SourcePreview key={current.id} documentId={id} name={doc.name} invoice={current}/>}</div>}
+        <SourcePreview key={current.id} documentId={id} name={doc.name} invoice={current} guide={activeGuide}/>}</div>}
       {section === 'compare' && comparison && <Compare key={comparison.id} left={comparison} docId={id} docs={docs} close={() => {setComparison(null); show('review');}} notify={notify}/>}
       {section === 'source' && <div className="source-workspace">
         {canPreview && current && <SourcePreview key={current.id} documentId={id} name={doc.name} invoice={current}/>}
@@ -335,7 +393,7 @@ function Detail({ id, name, docs, notify, refresh, back }) {
   </>;
 }
 
-function SourcePreview({ documentId, name, invoice }) {
+function SourcePreview({ documentId, name, invoice, guide }) {
   const [page, setPage] = useState(() => Number(invoice.source.match(/\b(?:Page|Image) (\d+)/i)?.[1]) || 1);
   const [pageInput, setPageInput] = useState(null);
   const [pageCount, setPageCount] = useState(0);
@@ -348,6 +406,13 @@ function SourcePreview({ documentId, name, invoice }) {
   const [collapsed, setCollapsed] = useState(false);
   const dialog = useRef(null);
   const expandButton = useRef(null);
+  useEffect(() => {
+    if (guide?.page) {
+      setPage(guide.page);
+      setPageInput(null);
+      setCollapsed(false);
+    }
+  }, [guide]);
   useEffect(() => {
     if (collapsed) return;
     const controller = new AbortController();

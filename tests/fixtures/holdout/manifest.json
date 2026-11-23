@@ -1,0 +1,658 @@
+[
+  {
+    "name": "column-order-01.pdf",
+    "family": "column-order",
+    "expected": {
+      "invoice_number": "HO-201",
+      "invoice_date": "2026-08-12",
+      "supplier_name": "Alder Design",
+      "customer_name": "Maple Studio",
+      "subtotal": "70",
+      "tax": "10",
+      "total": "80",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Shipping fee",
+          "quantity": "2",
+          "unit_price": "35",
+          "amount": "70"
+        }
+      ]
+    },
+    "sha256": "9388fa321bf0a984cc4de4318f60115009e777ca278b221c8888f0e756e2bade"
+  },
+  {
+    "name": "column-order-02.pdf",
+    "family": "column-order",
+    "expected": {
+      "invoice_number": "HO-202",
+      "invoice_date": "2026-08-13",
+      "supplier_name": "Beacon Supply",
+      "customer_name": "Maple Studio",
+      "subtotal": "72",
+      "tax": "10",
+      "total": "82",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Printer stock",
+          "quantity": "2",
+          "unit_price": "36",
+          "amount": "72"
+        }
+      ]
+    },
+    "sha256": "17dbf7ff190d6c58b6c56482dcb531684f8debca8d71cbc8531e60df450e224f"
+  },
+  {
+    "name": "column-order-03.pdf",
+    "family": "column-order",
+    "expected": {
+      "invoice_number": "HO-203",
+      "invoice_date": "2026-08-14",
+      "supplier_name": "Cedar Office",
+      "customer_name": "Maple Studio",
+      "subtotal": "74",
+      "tax": "10",
+      "total": "84",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Monitor",
+          "quantity": "2",
+          "unit_price": "37",
+          "amount": "74"
+        }
+      ]
+    },
+    "sha256": "3be0b16661c140f1225ffb8cdcd69dca00b809efae6270b9348f703efac56a2f"
+  },
+  {
+    "name": "column-order-04.pdf",
+    "family": "column-order",
+    "expected": {
+      "invoice_number": "HO-204",
+      "invoice_date": "2026-08-15",
+      "supplier_name": "Drift Logistics",
+      "customer_name": "Maple Studio",
+      "subtotal": "76",
+      "tax": "10",
+      "total": "86",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Advisory service",
+          "quantity": "2",
+          "unit_price": "38",
+          "amount": "76"
+        }
+      ]
+    },
+    "sha256": "4181034058b54a0e0c63eb13b7d7d6961cc89075ca601439c5d6054792209476"
+  },
+  {
+    "name": "column-order-05.pdf",
+    "family": "column-order",
+    "expected": {
+      "invoice_number": "HO-205",
+      "invoice_date": "2026-08-16",
+      "supplier_name": "Elm Repairs",
+      "customer_name": "Maple Studio",
+      "subtotal": "78",
+      "tax": "10",
+      "total": "88",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Hosting subscription",
+          "quantity": "2",
+          "unit_price": "39",
+          "amount": "78"
+        }
+      ]
+    },
+    "sha256": "63b9133e3a9205509df9bb7ecc7089992fd62a2156b426be012fc4e9322e3d25"
+  },
+  {
+    "name": "column-order-06.pdf",
+    "family": "column-order",
+    "expected": {
+      "invoice_number": "HO-206",
+      "invoice_date": "2026-08-17",
+      "supplier_name": "Foxtail Studio",
+      "customer_name": "Maple Studio",
+      "subtotal": "80",
+      "tax": "10",
+      "total": "90",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Equipment repair",
+          "quantity": "2",
+          "unit_price": "40",
+          "amount": "80"
+        }
+      ]
+    },
+    "sha256": "c810f3263c974cc416a3a0b333d2b45762993ac57e8e0efb1ab8f49795de1759"
+  },
+  {
+    "name": "regional-values-01.pdf",
+    "family": "regional-values",
+    "expected": {
+      "invoice_number": "HO-207",
+      "invoice_date": "2026-08-12",
+      "supplier_name": "Alder Design",
+      "customer_name": "Maple Studio",
+      "subtotal": "70",
+      "tax": "10",
+      "total": "80",
+      "currency": "GBP",
+      "line_items": [
+        {
+          "description": "Shipping fee",
+          "quantity": "2",
+          "unit_price": "35",
+          "amount": "70"
+        }
+      ]
+    },
+    "sha256": "955da89f569cc0b19ecb142d3264c81afdfae1c200254f8b0d34a8ee4b4b114c"
+  },
+  {
+    "name": "regional-values-02.pdf",
+    "family": "regional-values",
+    "expected": {
+      "invoice_number": "HO-208",
+      "invoice_date": "2026-08-13",
+      "supplier_name": "Beacon Supply",
+      "customer_name": "Maple Studio",
+      "subtotal": "72",
+      "tax": "10",
+      "total": "82",
+      "currency": "GBP",
+      "line_items": [
+        {
+          "description": "Printer stock",
+          "quantity": "2",
+          "unit_price": "36",
+          "amount": "72"
+        }
+      ]
+    },
+    "sha256": "737220435fd4a25a364e9c60e36ae387d0f45174c09c587f15159b63ead5cf26"
+  },
+  {
+    "name": "regional-values-03.pdf",
+    "family": "regional-values",
+    "expected": {
+      "invoice_number": "HO-209",
+      "invoice_date": "2026-08-14",
+      "supplier_name": "Cedar Office",
+      "customer_name": "Maple Studio",
+      "subtotal": "74",
+      "tax": "10",
+      "total": "84",
+      "currency": "GBP",
+      "line_items": [
+        {
+          "description": "Monitor",
+          "quantity": "2",
+          "unit_price": "37",
+          "amount": "74"
+        }
+      ]
+    },
+    "sha256": "e67c82297c940dd120284c6cc45e799a1aeef172e5654136a5e5bc663676ffed"
+  },
+  {
+    "name": "regional-values-04.pdf",
+    "family": "regional-values",
+    "expected": {
+      "invoice_number": "HO-210",
+      "invoice_date": "2026-08-15",
+      "supplier_name": "Drift Logistics",
+      "customer_name": "Maple Studio",
+      "subtotal": "76",
+      "tax": "10",
+      "total": "86",
+      "currency": "GBP",
+      "line_items": [
+        {
+          "description": "Advisory service",
+          "quantity": "2",
+          "unit_price": "38",
+          "amount": "76"
+        }
+      ]
+    },
+    "sha256": "142a8eae3c8e2f7f580c31ce745570c9c065caab533303f81a63183f59d71665"
+  },
+  {
+    "name": "regional-values-05.pdf",
+    "family": "regional-values",
+    "expected": {
+      "invoice_number": "HO-211",
+      "invoice_date": "2026-08-16",
+      "supplier_name": "Elm Repairs",
+      "customer_name": "Maple Studio",
+      "subtotal": "78",
+      "tax": "10",
+      "total": "88",
+      "currency": "GBP",
+      "line_items": [
+        {
+          "description": "Hosting subscription",
+          "quantity": "2",
+          "unit_price": "39",
+          "amount": "78"
+        }
+      ]
+    },
+    "sha256": "8daac59311a9300f4a1de4b2623e687df41d37210021f57cc81cf11930e2a3ac"
+  },
+  {
+    "name": "regional-values-06.pdf",
+    "family": "regional-values",
+    "expected": {
+      "invoice_number": "HO-212",
+      "invoice_date": "2026-08-17",
+      "supplier_name": "Foxtail Studio",
+      "customer_name": "Maple Studio",
+      "subtotal": "80",
+      "tax": "10",
+      "total": "90",
+      "currency": "GBP",
+      "line_items": [
+        {
+          "description": "Equipment repair",
+          "quantity": "2",
+          "unit_price": "40",
+          "amount": "80"
+        }
+      ]
+    },
+    "sha256": "adcb918b36cd1cd09d287f0377077cbde356b2747e45301b484cdcc176f61ee6"
+  },
+  {
+    "name": "positioned-labels-01.pdf",
+    "family": "positioned-labels",
+    "expected": {
+      "invoice_number": "HO-213",
+      "invoice_date": "2026-08-12",
+      "supplier_name": "Alder Design",
+      "customer_name": "Maple Studio",
+      "subtotal": "70",
+      "tax": "10",
+      "total": "80",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Shipping fee",
+          "quantity": "2",
+          "unit_price": "35",
+          "amount": "70"
+        }
+      ]
+    },
+    "sha256": "21daa6e9e5ff781c11921ded32ffb894ad3de5329dd07422861a17615d0a2165"
+  },
+  {
+    "name": "positioned-labels-02.pdf",
+    "family": "positioned-labels",
+    "expected": {
+      "invoice_number": "HO-214",
+      "invoice_date": "2026-08-13",
+      "supplier_name": "Beacon Supply",
+      "customer_name": "Maple Studio",
+      "subtotal": "72",
+      "tax": "10",
+      "total": "82",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Printer stock",
+          "quantity": "2",
+          "unit_price": "36",
+          "amount": "72"
+        }
+      ]
+    },
+    "sha256": "82560388ce38a2a1c970aa2d1688843136fb784f5067e0c6ce93e9e633027126"
+  },
+  {
+    "name": "positioned-labels-03.pdf",
+    "family": "positioned-labels",
+    "expected": {
+      "invoice_number": "HO-215",
+      "invoice_date": "2026-08-14",
+      "supplier_name": "Cedar Office",
+      "customer_name": "Maple Studio",
+      "subtotal": "74",
+      "tax": "10",
+      "total": "84",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Monitor",
+          "quantity": "2",
+          "unit_price": "37",
+          "amount": "74"
+        }
+      ]
+    },
+    "sha256": "13044c4ea8506279390ccf6a2419ac29dc2d3a77003a29482d99205a3cc6c356"
+  },
+  {
+    "name": "positioned-labels-04.pdf",
+    "family": "positioned-labels",
+    "expected": {
+      "invoice_number": "HO-216",
+      "invoice_date": "2026-08-15",
+      "supplier_name": "Drift Logistics",
+      "customer_name": "Maple Studio",
+      "subtotal": "76",
+      "tax": "10",
+      "total": "86",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Advisory service",
+          "quantity": "2",
+          "unit_price": "38",
+          "amount": "76"
+        }
+      ]
+    },
+    "sha256": "b3e44ab82e866f58f5c1d560bb8a2f78b44e499c374ba61a626959ddfb38c282"
+  },
+  {
+    "name": "positioned-labels-05.pdf",
+    "family": "positioned-labels",
+    "expected": {
+      "invoice_number": "HO-217",
+      "invoice_date": "2026-08-16",
+      "supplier_name": "Elm Repairs",
+      "customer_name": "Maple Studio",
+      "subtotal": "78",
+      "tax": "10",
+      "total": "88",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Hosting subscription",
+          "quantity": "2",
+          "unit_price": "39",
+          "amount": "78"
+        }
+      ]
+    },
+    "sha256": "217e0639c81a2b788a368a0901e54774016fc2cc082058596dcf547a7a5a1e7d"
+  },
+  {
+    "name": "positioned-labels-06.pdf",
+    "family": "positioned-labels",
+    "expected": {
+      "invoice_number": "HO-218",
+      "invoice_date": "2026-08-17",
+      "supplier_name": "Foxtail Studio",
+      "customer_name": "Maple Studio",
+      "subtotal": "80",
+      "tax": "10",
+      "total": "90",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Equipment repair",
+          "quantity": "2",
+          "unit_price": "40",
+          "amount": "80"
+        }
+      ]
+    },
+    "sha256": "4a6676842b1a27c36027e34db29912f5779e18f82e150acd6980db6f8f7c559c"
+  },
+  {
+    "name": "faint-scan-01.pdf",
+    "family": "faint-scan",
+    "expected": {
+      "invoice_number": "HO-219",
+      "invoice_date": "2026-08-12",
+      "supplier_name": "Alder Design",
+      "customer_name": "Maple Studio",
+      "subtotal": "70",
+      "tax": "10",
+      "total": "80",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Shipping fee",
+          "quantity": "2",
+          "unit_price": "35",
+          "amount": "70"
+        }
+      ]
+    },
+    "sha256": "389a1fa564329944789a7bac32beb977783210c3c83fb1efab88c2014ef8b019"
+  },
+  {
+    "name": "faint-scan-02.pdf",
+    "family": "faint-scan",
+    "expected": {
+      "invoice_number": "HO-220",
+      "invoice_date": "2026-08-13",
+      "supplier_name": "Beacon Supply",
+      "customer_name": "Maple Studio",
+      "subtotal": "72",
+      "tax": "10",
+      "total": "82",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Printer stock",
+          "quantity": "2",
+          "unit_price": "36",
+          "amount": "72"
+        }
+      ]
+    },
+    "sha256": "0bafd3f16b991153552bda85a014c2ae3360002b00f13262f65915a105efe1e8"
+  },
+  {
+    "name": "faint-scan-03.pdf",
+    "family": "faint-scan",
+    "expected": {
+      "invoice_number": "HO-221",
+      "invoice_date": "2026-08-14",
+      "supplier_name": "Cedar Office",
+      "customer_name": "Maple Studio",
+      "subtotal": "74",
+      "tax": "10",
+      "total": "84",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Monitor",
+          "quantity": "2",
+          "unit_price": "37",
+          "amount": "74"
+        }
+      ]
+    },
+    "sha256": "aef4a3ccc277238b37ba2d2dc49a9d59c553ef904a566f09e527cac21197fb40"
+  },
+  {
+    "name": "faint-scan-04.pdf",
+    "family": "faint-scan",
+    "expected": {
+      "invoice_number": "HO-222",
+      "invoice_date": "2026-08-15",
+      "supplier_name": "Drift Logistics",
+      "customer_name": "Maple Studio",
+      "subtotal": "76",
+      "tax": "10",
+      "total": "86",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Advisory service",
+          "quantity": "2",
+          "unit_price": "38",
+          "amount": "76"
+        }
+      ]
+    },
+    "sha256": "12346ca8b4e85a6d6a40be89ab37ae698b6dbf6b5d5a6042f244394fd86df70f"
+  },
+  {
+    "name": "faint-scan-05.pdf",
+    "family": "faint-scan",
+    "expected": {
+      "invoice_number": "HO-223",
+      "invoice_date": "2026-08-16",
+      "supplier_name": "Elm Repairs",
+      "customer_name": "Maple Studio",
+      "subtotal": "78",
+      "tax": "10",
+      "total": "88",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Hosting subscription",
+          "quantity": "2",
+          "unit_price": "39",
+          "amount": "78"
+        }
+      ]
+    },
+    "sha256": "f78a4d9bf0b01b13324b0f81e77fdd1eb15c86f8f05b8bf6eea4e5625572181e"
+  },
+  {
+    "name": "faint-scan-06.pdf",
+    "family": "faint-scan",
+    "expected": {
+      "invoice_number": "HO-224",
+      "invoice_date": "2026-08-17",
+      "supplier_name": "Foxtail Studio",
+      "customer_name": "Maple Studio",
+      "subtotal": "80",
+      "tax": "10",
+      "total": "90",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Equipment repair",
+          "quantity": "2",
+          "unit_price": "40",
+          "amount": "80"
+        }
+      ]
+    },
+    "sha256": "0e153b1e77702b0dc8a521387243462708a28d409d8b1767eb4dc0fde173ac4d"
+  },
+  {
+    "name": "continuation-01.pdf",
+    "family": "continuation",
+    "expected": {
+      "invoice_number": "HO-225",
+      "invoice_date": "2026-08-12",
+      "supplier_name": "Alder Design",
+      "customer_name": null,
+      "subtotal": "70",
+      "tax": "10",
+      "total": "80",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Shipping fee",
+          "quantity": "2",
+          "unit_price": "35",
+          "amount": "70"
+        }
+      ]
+    },
+    "sha256": "efd5133638a796bf345e1d673495d9d749635d034db77dae384d11d16e111906"
+  },
+  {
+    "name": "continuation-02.pdf",
+    "family": "continuation",
+    "expected": {
+      "invoice_number": "HO-226",
+      "invoice_date": "2026-08-13",
+      "supplier_name": "Beacon Supply",
+      "customer_name": "Maple Studio",
+      "subtotal": "72",
+      "tax": "10",
+      "total": "82",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Printer stock",
+          "quantity": "2",
+          "unit_price": "36",
+          "amount": "72"
+        }
+      ]
+    },
+    "sha256": "cbf83f0b8117c00fedd1de2ac2edf70747667d0a2ee267653a924efb9c20572d"
+  },
+  {
+    "name": "continuation-03.pdf",
+    "family": "continuation",
+    "expected": {
+      "invoice_number": "HO-227",
+      "invoice_date": "2026-08-14",
+      "supplier_name": "Cedar Office",
+      "customer_name": null,
+      "subtotal": "74",
+      "tax": "10",
+      "total": "84",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Monitor",
+          "quantity": "2",
+          "unit_price": "37",
+          "amount": "74"
+        }
+      ]
+    },
+    "sha256": "c41bd32177feed3f0e96771a7c247680e48debd08d062f762b2db1b133e024f0"
+  },
+  {
+    "name": "continuation-04.pdf",
+    "family": "continuation",
+    "expected": {
+      "invoice_number": "HO-228",
+      "invoice_date": "2026-08-15",
+      "supplier_name": "Drift Logistics",
+      "customer_name": "Maple Studio",
+      "subtotal": "76",
+      "tax": "10",
+      "total": "86",
+      "currency": "USD",
+      "line_items": [
+        {
+          "description": "Advisory service",
+          "quantity": "2",
+          "unit_price": "38",
+          "amount": "76"
+        }
+      ]
+    },
+    "sha256": "732db71ddeca78fb3820a0e48f279c54b224b3fada3a1f158fd0e032b4829df5"
+  },
+  {
+    "name": "continuation-05.pdf",
+    "family": "continuation",
+    "expected": null,
+    "sha256": "9fc5740353d69fba66b519c7ff81e9fab577fbc6e7c2946e0523604a94a1e4df"
+  },
+  {
+    "name": "continuation-06.pdf",
+    "family": "continuation",
+    "expected": null,
+    "sha256": "9fc5740353d69fba66b519c7ff81e9fab577fbc6e7c2946e0523604a94a1e4df"
+  }
+]

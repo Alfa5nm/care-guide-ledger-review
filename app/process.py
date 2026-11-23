@@ -27,6 +27,7 @@ class Section:
     source: str
     text: str
     rows: list | None = None
+    positioned: list | None = None
 
 
 def ocr(image, *, enhance_low_contrast=False):
@@ -67,8 +68,30 @@ def row_value(value):
     return str(value)
 
 
-def read_pdf_page(page, warnings, source):
+def positioned_rows(words):
+    rows = []
+    previous_y = None
+    for word in sorted(words, key=lambda word: (word[1], word[0])):
+        if previous_y is None or word[1] - previous_y > 3:
+            rows.append([])
+            previous_y = word[1]
+        rows[-1].append(word)
+    for row in rows:
+        cells = []
+        right = None
+        for left, _, end, _, text, *_ in sorted(row):
+            if right is None or left - right >= 14:
+                cells.append(text)
+            else:
+                cells[-1] += " " + text
+            right = end
+        yield cells
+
+
+def read_pdf_page(page, warnings, source, layout=None):
     text = page.get_text(sort=True).strip()
+    if text and layout is not None:
+        layout.extend(row for row in positioned_rows(page.get_text("words")) if len(row) >= 3)
     zoom = min(2.5, (12_000_000 / max(1, page.rect.get_area())) ** 0.5)
     matrix = fitz.Matrix(zoom, zoom)
 
@@ -209,7 +232,7 @@ def extract(path: Path, suffix, progress):
     warnings = []
     size = 0
 
-    def add(source, get_text):
+    def add(source, get_text, positioned=None):
         nonlocal size
         try:
             content = get_text()
@@ -221,7 +244,7 @@ def extract(path: Path, suffix, progress):
             raise DocumentError("Document exceeds the extracted text limit.")
         if not content.strip() and not any(warning.startswith(f"{source}:") for warning in warnings):
             warnings.append(f"{source}: no readable text.")
-        sections.append(Section(source, content))
+        sections.append(Section(source, content, positioned=positioned))
 
     try:
         if suffix == ".pdf":
@@ -232,7 +255,8 @@ def extract(path: Path, suffix, progress):
                     raise DocumentError("PDF page count is outside the supported range.")
                 for n, page in enumerate(document, 1):
                     source = f"Page {n}"
-                    add(source, lambda: read_pdf_page(page, warnings, source))
+                    layout = []
+                    add(source, lambda: read_pdf_page(page, warnings, source, layout), layout)
                     progress(5 + n * 55 // len(document), f"Reading page {n} of {len(document)}")
         elif suffix in {".xlsx", ".xls", ".csv"}:
             for index, section in enumerate(spreadsheet(path, suffix), 1):

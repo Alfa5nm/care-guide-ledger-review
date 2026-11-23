@@ -343,3 +343,30 @@ select:hover:not(:disabled) { border-color: #a69ae9; }
   font-weight: 600;
   text-underline-offset: 3px;
 }
+.review-flag {
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.review-evidence {
+  background: var(--surface, #fff);
+  border: 1px solid #b7a9ee;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 12px 0;
+}
+
+.review-evidence blockquote {
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+}
+
+.review-evidence pre {
+  overflow: auto;
+  max-height: 24rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

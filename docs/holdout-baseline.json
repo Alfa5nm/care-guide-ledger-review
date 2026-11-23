@@ -1,0 +1,2157 @@
+{
+  "summary": {
+    "exact": 15,
+    "documents": 28,
+    "precision_pct": 99.67,
+    "recall_pct": 90.72,
+    "incorrect_accepted": 1,
+    "unsupported_accepted": 0,
+    "abstentions": 30
+  },
+  "families": {
+    "column-order": {
+      "exact": 0,
+      "documents": 6,
+      "precision_pct": 100.0,
+      "recall_pct": 66.67,
+      "incorrect_accepted": 0,
+      "unsupported_accepted": 0,
+      "abstentions": 24
+    },
+    "regional-values": {
+      "exact": 0,
+      "documents": 6,
+      "precision_pct": 100.0,
+      "recall_pct": 91.67,
+      "incorrect_accepted": 0,
+      "unsupported_accepted": 0,
+      "abstentions": 6
+    },
+    "positioned-labels": {
+      "exact": 6,
+      "documents": 6,
+      "precision_pct": 100.0,
+      "recall_pct": 100.0,
+      "incorrect_accepted": 0,
+      "unsupported_accepted": 0,
+      "abstentions": 0
+    },
+    "faint-scan": {
+      "exact": 5,
+      "documents": 6,
+      "precision_pct": 98.61,
+      "recall_pct": 98.61,
+      "incorrect_accepted": 1,
+      "unsupported_accepted": 0,
+      "abstentions": 0
+    },
+    "continuation": {
+      "exact": 4,
+      "documents": 4,
+      "precision_pct": 100.0,
+      "recall_pct": 100.0,
+      "incorrect_accepted": 0,
+      "unsupported_accepted": 0,
+      "abstentions": 0
+    }
+  },
+  "expected_failures": 2,
+  "retrieval": {
+    "keyword": [
+      {
+        "query": "Shipping fee",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "freight",
+        "hits_at_5": 0,
+        "relevant": 5,
+        "returned_at_5": 0
+      },
+      {
+        "query": "Printer stock",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "stationery",
+        "hits_at_5": 0,
+        "relevant": 5,
+        "returned_at_5": 0
+      },
+      {
+        "query": "Monitor",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "hardware",
+        "hits_at_5": 0,
+        "relevant": 5,
+        "returned_at_5": 0
+      },
+      {
+        "query": "Advisory service",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "consulting",
+        "hits_at_5": 0,
+        "relevant": 5,
+        "returned_at_5": 0
+      },
+      {
+        "query": "Hosting subscription",
+        "hits_at_5": 4,
+        "relevant": 4,
+        "returned_at_5": 4
+      },
+      {
+        "query": "software",
+        "hits_at_5": 0,
+        "relevant": 4,
+        "returned_at_5": 0
+      },
+      {
+        "query": "Equipment repair",
+        "hits_at_5": 4,
+        "relevant": 4,
+        "returned_at_5": 4
+      },
+      {
+        "query": "servicing",
+        "hits_at_5": 0,
+        "relevant": 4,
+        "returned_at_5": 0
+      }
+    ],
+    "semantic": [
+      {
+        "query": "Shipping fee",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "freight",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "Printer stock",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "stationery",
+        "hits_at_5": 0,
+        "relevant": 5,
+        "returned_at_5": 0
+      },
+      {
+        "query": "Monitor",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "hardware",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "Advisory service",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "consulting",
+        "hits_at_5": 5,
+        "relevant": 5,
+        "returned_at_5": 5
+      },
+      {
+        "query": "Hosting subscription",
+        "hits_at_5": 4,
+        "relevant": 4,
+        "returned_at_5": 4
+      },
+      {
+        "query": "software",
+        "hits_at_5": 4,
+        "relevant": 4,
+        "returned_at_5": 4
+      },
+      {
+        "query": "Equipment repair",
+        "hits_at_5": 4,
+        "relevant": 4,
+        "returned_at_5": 5
+      },
+      {
+        "query": "servicing",
+        "hits_at_5": 4,
+        "relevant": 4,
+        "returned_at_5": 4
+      }
+    ]
+  },
+  "documents": [
+    {
+      "name": "column-order-01.pdf",
+      "family": "column-order",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-201",
+          "actual": "HO-201"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-12",
+          "actual": "2026-08-12"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Alder Design",
+          "actual": "Alder Design"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "70",
+          "actual": "70"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Shipping fee",
+          "actual": null
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": null
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "35",
+          "actual": null
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "70",
+          "actual": null
+        }
+      ]
+    },
+    {
+      "name": "column-order-02.pdf",
+      "family": "column-order",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-202",
+          "actual": "HO-202"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-13",
+          "actual": "2026-08-13"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Beacon Supply",
+          "actual": "Beacon Supply"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "72",
+          "actual": "72"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "82",
+          "actual": "82"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Printer stock",
+          "actual": null
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": null
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "36",
+          "actual": null
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "72",
+          "actual": null
+        }
+      ]
+    },
+    {
+      "name": "column-order-03.pdf",
+      "family": "column-order",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-203",
+          "actual": "HO-203"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-14",
+          "actual": "2026-08-14"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Cedar Office",
+          "actual": "Cedar Office"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "74",
+          "actual": "74"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "84",
+          "actual": "84"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Monitor",
+          "actual": null
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": null
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "37",
+          "actual": null
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "74",
+          "actual": null
+        }
+      ]
+    },
+    {
+      "name": "column-order-04.pdf",
+      "family": "column-order",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-204",
+          "actual": "HO-204"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-15",
+          "actual": "2026-08-15"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Drift Logistics",
+          "actual": "Drift Logistics"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "76",
+          "actual": "76"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "86",
+          "actual": "86"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Advisory service",
+          "actual": null
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": null
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "38",
+          "actual": null
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "76",
+          "actual": null
+        }
+      ]
+    },
+    {
+      "name": "column-order-05.pdf",
+      "family": "column-order",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-205",
+          "actual": "HO-205"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-16",
+          "actual": "2026-08-16"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Elm Repairs",
+          "actual": "Elm Repairs"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "78",
+          "actual": "78"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "88",
+          "actual": "88"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Hosting subscription",
+          "actual": null
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": null
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "39",
+          "actual": null
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "78",
+          "actual": null
+        }
+      ]
+    },
+    {
+      "name": "column-order-06.pdf",
+      "family": "column-order",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-206",
+          "actual": "HO-206"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-17",
+          "actual": "2026-08-17"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Foxtail Studio",
+          "actual": "Foxtail Studio"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "90",
+          "actual": "90"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Equipment repair",
+          "actual": null
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": null
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "40",
+          "actual": null
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "80",
+          "actual": null
+        }
+      ]
+    },
+    {
+      "name": "regional-values-01.pdf",
+      "family": "regional-values",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-207",
+          "actual": "HO-207"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-12",
+          "actual": null
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Alder Design",
+          "actual": "Alder Design"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "70",
+          "actual": "70"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "currency",
+          "expected": "GBP",
+          "actual": "GBP"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Shipping fee",
+          "actual": "Shipping fee"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "35",
+          "actual": "35"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "70",
+          "actual": "70"
+        }
+      ]
+    },
+    {
+      "name": "regional-values-02.pdf",
+      "family": "regional-values",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-208",
+          "actual": "HO-208"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-13",
+          "actual": null
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Beacon Supply",
+          "actual": "Beacon Supply"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "72",
+          "actual": "72"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "82",
+          "actual": "82"
+        },
+        {
+          "field": "currency",
+          "expected": "GBP",
+          "actual": "GBP"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Printer stock",
+          "actual": "Printer stock"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "36",
+          "actual": "36"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "72",
+          "actual": "72"
+        }
+      ]
+    },
+    {
+      "name": "regional-values-03.pdf",
+      "family": "regional-values",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-209",
+          "actual": "HO-209"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-14",
+          "actual": null
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Cedar Office",
+          "actual": "Cedar Office"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "74",
+          "actual": "74"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "84",
+          "actual": "84"
+        },
+        {
+          "field": "currency",
+          "expected": "GBP",
+          "actual": "GBP"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Monitor",
+          "actual": "Monitor"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "37",
+          "actual": "37"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "74",
+          "actual": "74"
+        }
+      ]
+    },
+    {
+      "name": "regional-values-04.pdf",
+      "family": "regional-values",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-210",
+          "actual": "HO-210"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-15",
+          "actual": null
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Drift Logistics",
+          "actual": "Drift Logistics"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "76",
+          "actual": "76"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "86",
+          "actual": "86"
+        },
+        {
+          "field": "currency",
+          "expected": "GBP",
+          "actual": "GBP"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Advisory service",
+          "actual": "Advisory service"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "38",
+          "actual": "38"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "76",
+          "actual": "76"
+        }
+      ]
+    },
+    {
+      "name": "regional-values-05.pdf",
+      "family": "regional-values",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-211",
+          "actual": "HO-211"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-16",
+          "actual": null
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Elm Repairs",
+          "actual": "Elm Repairs"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "78",
+          "actual": "78"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "88",
+          "actual": "88"
+        },
+        {
+          "field": "currency",
+          "expected": "GBP",
+          "actual": "GBP"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Hosting subscription",
+          "actual": "Hosting subscription"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "39",
+          "actual": "39"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "78",
+          "actual": "78"
+        }
+      ]
+    },
+    {
+      "name": "regional-values-06.pdf",
+      "family": "regional-values",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-212",
+          "actual": "HO-212"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-17",
+          "actual": null
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Foxtail Studio",
+          "actual": "Foxtail Studio"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "90",
+          "actual": "90"
+        },
+        {
+          "field": "currency",
+          "expected": "GBP",
+          "actual": "GBP"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Equipment repair",
+          "actual": "Equipment repair"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "40",
+          "actual": "40"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "80",
+          "actual": "80"
+        }
+      ]
+    },
+    {
+      "name": "positioned-labels-01.pdf",
+      "family": "positioned-labels",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-213",
+          "actual": "HO-213"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-12",
+          "actual": "2026-08-12"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Alder Design",
+          "actual": "Alder Design"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "70",
+          "actual": "70"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Shipping fee",
+          "actual": "Shipping fee"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "35",
+          "actual": "35"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "70",
+          "actual": "70"
+        }
+      ]
+    },
+    {
+      "name": "positioned-labels-02.pdf",
+      "family": "positioned-labels",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-214",
+          "actual": "HO-214"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-13",
+          "actual": "2026-08-13"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Beacon Supply",
+          "actual": "Beacon Supply"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "72",
+          "actual": "72"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "82",
+          "actual": "82"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Printer stock",
+          "actual": "Printer stock"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "36",
+          "actual": "36"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "72",
+          "actual": "72"
+        }
+      ]
+    },
+    {
+      "name": "positioned-labels-03.pdf",
+      "family": "positioned-labels",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-215",
+          "actual": "HO-215"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-14",
+          "actual": "2026-08-14"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Cedar Office",
+          "actual": "Cedar Office"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "74",
+          "actual": "74"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "84",
+          "actual": "84"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Monitor",
+          "actual": "Monitor"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "37",
+          "actual": "37"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "74",
+          "actual": "74"
+        }
+      ]
+    },
+    {
+      "name": "positioned-labels-04.pdf",
+      "family": "positioned-labels",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-216",
+          "actual": "HO-216"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-15",
+          "actual": "2026-08-15"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Drift Logistics",
+          "actual": "Drift Logistics"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "76",
+          "actual": "76"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "86",
+          "actual": "86"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Advisory service",
+          "actual": "Advisory service"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "38",
+          "actual": "38"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "76",
+          "actual": "76"
+        }
+      ]
+    },
+    {
+      "name": "positioned-labels-05.pdf",
+      "family": "positioned-labels",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-217",
+          "actual": "HO-217"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-16",
+          "actual": "2026-08-16"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Elm Repairs",
+          "actual": "Elm Repairs"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "78",
+          "actual": "78"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "88",
+          "actual": "88"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Hosting subscription",
+          "actual": "Hosting subscription"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "39",
+          "actual": "39"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "78",
+          "actual": "78"
+        }
+      ]
+    },
+    {
+      "name": "positioned-labels-06.pdf",
+      "family": "positioned-labels",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-218",
+          "actual": "HO-218"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-17",
+          "actual": "2026-08-17"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Foxtail Studio",
+          "actual": "Foxtail Studio"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "90",
+          "actual": "90"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Equipment repair",
+          "actual": "Equipment repair"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "40",
+          "actual": "40"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "80",
+          "actual": "80"
+        }
+      ]
+    },
+    {
+      "name": "faint-scan-01.pdf",
+      "family": "faint-scan",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-219",
+          "actual": "HO-219"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-12",
+          "actual": "2026-08-12"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Alder Design",
+          "actual": "Alder Design"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "70",
+          "actual": "70"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Shipping fee",
+          "actual": "Shipping fee"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "35",
+          "actual": "35"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "70",
+          "actual": "70"
+        }
+      ]
+    },
+    {
+      "name": "faint-scan-02.pdf",
+      "family": "faint-scan",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-220",
+          "actual": "HO-220"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-13",
+          "actual": "2026-08-13"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Beacon Supply",
+          "actual": "Beacon Supply"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "72",
+          "actual": "72"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "82",
+          "actual": "82"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Printer stock",
+          "actual": "Printer stock"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "36",
+          "actual": "36"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "72",
+          "actual": "72"
+        }
+      ]
+    },
+    {
+      "name": "faint-scan-03.pdf",
+      "family": "faint-scan",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-221",
+          "actual": "HO-221"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-14",
+          "actual": "2026-08-14"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Cedar Office",
+          "actual": "Cedar Office"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "74",
+          "actual": "74"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "84",
+          "actual": "84"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Monitor",
+          "actual": "Monitor"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "37",
+          "actual": "37"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "74",
+          "actual": "74"
+        }
+      ]
+    },
+    {
+      "name": "faint-scan-04.pdf",
+      "family": "faint-scan",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-222",
+          "actual": "HO-222"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-15",
+          "actual": "2026-08-15"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Drift Logistics",
+          "actual": "Drift Logistics"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "76",
+          "actual": "76"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "86",
+          "actual": "86"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Advisory service",
+          "actual": "Advisory service"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "38",
+          "actual": "38"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "76",
+          "actual": "76"
+        }
+      ]
+    },
+    {
+      "name": "faint-scan-05.pdf",
+      "family": "faint-scan",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-223",
+          "actual": "HO-223"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-16",
+          "actual": "2026-08-16"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Elm Repairs",
+          "actual": "Elm Repairs"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "78",
+          "actual": "78"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "88",
+          "actual": "88"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Hosting subscription",
+          "actual": "Hosting subscription"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "39",
+          "actual": "39"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "78",
+          "actual": "78"
+        }
+      ]
+    },
+    {
+      "name": "faint-scan-06.pdf",
+      "family": "faint-scan",
+      "status": "completed",
+      "exact": false,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-224",
+          "actual": "HO-224"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-17",
+          "actual": "2026-08-17"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Foxtail Studio",
+          "actual": "Foxtail Studio"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "90",
+          "actual": "98"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Equipment repair",
+          "actual": "Equipment repair"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "40",
+          "actual": "40"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "80",
+          "actual": "80"
+        }
+      ]
+    },
+    {
+      "name": "continuation-01.pdf",
+      "family": "continuation",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-225",
+          "actual": "HO-225"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-12",
+          "actual": "2026-08-12"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Alder Design",
+          "actual": "Alder Design"
+        },
+        {
+          "field": "customer_name",
+          "expected": null,
+          "actual": null
+        },
+        {
+          "field": "subtotal",
+          "expected": "70",
+          "actual": "70"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "80",
+          "actual": "80"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Shipping fee",
+          "actual": "Shipping fee"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "35",
+          "actual": "35"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "70",
+          "actual": "70"
+        }
+      ]
+    },
+    {
+      "name": "continuation-02.pdf",
+      "family": "continuation",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-226",
+          "actual": "HO-226"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-13",
+          "actual": "2026-08-13"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Beacon Supply",
+          "actual": "Beacon Supply"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "72",
+          "actual": "72"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "82",
+          "actual": "82"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Printer stock",
+          "actual": "Printer stock"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "36",
+          "actual": "36"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "72",
+          "actual": "72"
+        }
+      ]
+    },
+    {
+      "name": "continuation-03.pdf",
+      "family": "continuation",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-227",
+          "actual": "HO-227"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-14",
+          "actual": "2026-08-14"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Cedar Office",
+          "actual": "Cedar Office"
+        },
+        {
+          "field": "customer_name",
+          "expected": null,
+          "actual": null
+        },
+        {
+          "field": "subtotal",
+          "expected": "74",
+          "actual": "74"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "84",
+          "actual": "84"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Monitor",
+          "actual": "Monitor"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "37",
+          "actual": "37"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "74",
+          "actual": "74"
+        }
+      ]
+    },
+    {
+      "name": "continuation-04.pdf",
+      "family": "continuation",
+      "status": "completed",
+      "exact": true,
+      "records": 1,
+      "fields": [
+        {
+          "field": "invoice_number",
+          "expected": "HO-228",
+          "actual": "HO-228"
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2026-08-15",
+          "actual": "2026-08-15"
+        },
+        {
+          "field": "supplier_name",
+          "expected": "Drift Logistics",
+          "actual": "Drift Logistics"
+        },
+        {
+          "field": "customer_name",
+          "expected": "Maple Studio",
+          "actual": "Maple Studio"
+        },
+        {
+          "field": "subtotal",
+          "expected": "76",
+          "actual": "76"
+        },
+        {
+          "field": "tax",
+          "expected": "10",
+          "actual": "10"
+        },
+        {
+          "field": "total",
+          "expected": "86",
+          "actual": "86"
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": "USD"
+        },
+        {
+          "field": "line_1.description",
+          "expected": "Advisory service",
+          "actual": "Advisory service"
+        },
+        {
+          "field": "line_1.quantity",
+          "expected": "2",
+          "actual": "2"
+        },
+        {
+          "field": "line_1.unit_price",
+          "expected": "38",
+          "actual": "38"
+        },
+        {
+          "field": "line_1.amount",
+          "expected": "76",
+          "actual": "76"
+        }
+      ]
+    },
+    {
+      "name": "continuation-05.pdf",
+      "family": "continuation",
+      "status": "failed",
+      "exact": true,
+      "malformed": true
+    },
+    {
+      "name": "continuation-06.pdf",
+      "family": "continuation",
+      "status": "failed",
+      "exact": true,
+      "malformed": true
+    }
+  ]
+}

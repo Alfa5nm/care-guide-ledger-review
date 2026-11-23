@@ -58,7 +58,14 @@ def clean_field(field, value):
         return numeric(value)
     if field == "invoice_date":
         if not re.fullmatch(r"\d{4}[-/]\d{2}[-/]\d{2}", value):
-            return None
+            match = re.fullmatch(r"(\d{1,2})[./-](\d{1,2})[./-](\d{4})", value)
+            if not match:
+                return None
+            first, second, year = map(int, match.groups())
+            if first <= 12 and second <= 12 and first != second:
+                return None
+            day, month = (first, second) if first >= second else (second, first)
+            value = f"{year:04}-{month:02}-{day:02}"
         try:
             return date.fromisoformat(value.replace("/", "-")).isoformat()
         except ValueError:
@@ -262,7 +269,38 @@ def records(sections):
         source = pending[0].source if len(pending) == 1 else f"{pending[0].source}–{pending[-1].source}"
         body = "\n".join(section.text for section in pending)
         candidates, items = read_candidates(body)
-        return invoice_record(source, candidates, items, text=body)
+        located = []
+        if not items:
+            for section in pending:
+                mapped = None
+                for row in section.positioned or ():
+                    header = columns(row, dict(zip(ITEM_FIELDS, ITEM_LABELS)))
+                    if len(row) == 4 and set(header.values()) == set(range(4)):
+                        mapped = header
+                        continue
+                    if mapped is None or len(row) != 4:
+                        continue
+                    parsed = {field: clean_field(field, row[index]) for field, index in mapped.items()}
+                    if all(value is not None for value in parsed.values()):
+                        items.append(parsed)
+                        located.append({field: row[index] for field, index in mapped.items()})
+        record = invoice_record(source, candidates, items, text=body)
+        evidence = record["evidence"]
+        if located:
+            evidence["line_items"] = located
+            record["method"] = "local extraction + positioned table"
+        pages = {}
+        for field, quote in evidence.items():
+            if not isinstance(quote, str):
+                continue
+            candidates = {int(match[1]) for section in pending
+                          if (match := re.fullmatch(r"(?:Page|Image) (\d+)", section.source))
+                          and any(normalize(quote) in normalize(line) for line in section.text.splitlines())}
+            if len(candidates) == 1:
+                pages[field] = candidates.pop()
+        if pages:
+            evidence["_pages"] = pages
+        return record
 
     for section in sections:
         if section.rows is not None:

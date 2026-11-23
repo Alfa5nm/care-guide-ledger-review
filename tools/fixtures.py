@@ -76,7 +76,7 @@ def table_row(data):
     return [data[key] for key in FIELDS] + list(data["line_items"][0].values())
 
 
-def make(directory, legacy=False):
+def make(directory, legacy=False, guided_demo=False):
     directory.mkdir(parents=True, exist_ok=True)
     digital = sample("CG-1001")
     different = sample("CG-1001", total="115")
@@ -91,7 +91,17 @@ def make(directory, legacy=False):
     legacy_invoice = sample("CG-6001", "Notebooks", "Meridian Office")
 
     pdf(directory / "01-original-invoice.pdf", [digital])
-    pdf(directory / "02-conflicting-copy.pdf", [different])
+    if guided_demo:
+        with fitz.open() as document:
+            labels = lines(different, include_items=False)
+            page = draw_pdf_page(document, [labels[i] for i in (2, 0, 6, 1, 3, 5, 4, 7)])
+            for y, cells in ((270, ("Amount", "Qty", "Description", "Unit Price")),
+                             (293, ("100", "2", "Shipping fee", "50"))):
+                for x, value in zip((50, 110, 165, 430), cells):
+                    page.insert_text((x, y), value, fontsize=11)
+            document.save(directory / "02-conflicting-copy.pdf", deflate=True)
+    else:
+        pdf(directory / "02-conflicting-copy.pdf", [different])
     with fitz.open() as document:
         page = document.new_page(width=550, height=365)
         image_path = directory / "_scan.png"
@@ -165,7 +175,8 @@ if __name__ == "__main__":
     parser.add_argument("--out", type=Path, default=Path("artifacts/samples"))
     parser.add_argument("--benchmark", type=int, default=0)
     parser.add_argument("--generate-legacy", action="store_true")
+    parser.add_argument("--guided-demo", action="store_true")
     args = parser.parse_args()
-    make(args.out, args.generate_legacy)
+    make(args.out, args.generate_legacy, args.guided_demo)
     if args.benchmark:
         print(benchmark(args.out, args.benchmark))
