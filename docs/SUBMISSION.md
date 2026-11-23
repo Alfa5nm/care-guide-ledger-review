@@ -5,8 +5,9 @@
 | Source and setup | [README](../README.md), `app/`, `frontend/`, `requirements.txt`, and `compose.yaml` |
 | Architecture, EER, class diagram and database schema | [System design](SYSTEM_DESIGN.md), [storage design](SCHEMA.md) and [SQLite DDL](../app/schema.sql) |
 | Backend API and security | [Contracts and acceptance scenarios](BACKEND.md), [threat model](SECURITY.md), and the running application's /docs |
+| Hosting and operation | [Railway runbook](RAILWAY.md) |
 | Automated tests and results | `tests/`, [test log](test-results.txt), and [browser verification](browser-results.txt) |
-| Measured evaluation | [Report](EVALUATION.md) and [raw results](evaluation.json) |
+| Measured evaluation | [Report](EVALUATION.md), [Linux results](evaluation.json), [Windows results](evaluation-windows.json), and [hosted corpus results](hosted-smoke.json) |
 | Railway walkthrough | [Download the captioned MP4](../demo/Ledger_Review_Railway_Walkthrough.mp4) |
 | AI use and prompts | [Disclosure](AI_USAGE.md) |
 

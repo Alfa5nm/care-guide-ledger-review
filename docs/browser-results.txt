@@ -1,3 +1,7 @@
 # Browser verification
 
-A live Edge walkthrough using a separate API and worker passed with synthetic documents. It covered batch upload, OCR and source previews, validation, PDF-to-PDF and PDF-to-Excel reconciliation, manual corrections, corrupt-file retry, keyword and concept search, and mobile width. The sidebar toggle was separately checked at desktop and mobile widths. The recording shows the current browser workflow.
+The protected Railway workspace passed the Edge walkthrough with synthetic documents. It covered batch upload, OCR and source previews, validation, PDF-to-PDF and PDF-to-Excel reconciliation, manual corrections, corrupt-file retry, keyword and concept search, and a 390-pixel mobile viewport.
+
+The final Railway API check also verified readiness, anonymous rejection for protected routes, authenticated API documentation, rejection of a mismatched write origin, the labeled corpus, missing-page handling, rejection of retry on a completed job, and rejection of empty or unsupported uploads. A previously uploaded synthetic record was still readable after redeployment.
+
+The captioned MP4 was captured on the earlier successful browser run. The browser workflows were rerun on the final adaptive-OCR deployment after fixing the cross-platform low-contrast fixture.

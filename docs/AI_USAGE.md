@@ -14,4 +14,4 @@ The segment text is sent as the user message. The application checks the respons
 
 ## Development requests
 
-The assignment brief guided the project. Representative requests were to build an end-to-end document intelligence system, verify the listed file types and review workflows, and produce measured evaluation results and a walkthrough.
+The assignment brief guided the project. Representative requests were to build an end-to-end document intelligence system, verify the listed file types and review workflows, and produce measured evaluation results and a walkthrough. For the overhaul, the user asked for architecture, system design, schema, EER and class diagrams before implementation, a Railway deployment, failure-scenario verification, and defensive security research. Codex drafted the new documentation, adapted a Claude Code review method into a Codex skill, implemented the changes, and ran the reported checks.

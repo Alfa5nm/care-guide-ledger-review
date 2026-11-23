@@ -1,0 +1,206 @@
+{
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.14.0",
+    "cpu_count": 12,
+    "extraction": "local, no LLM",
+    "ocr": "tesseract v5.4.0.20240606"
+  },
+  "metrics": {
+    "header_correct": 102,
+    "header_expected": 102,
+    "header_false_values": 0,
+    "header_expected_nulls": 2,
+    "line_cells_correct": 52,
+    "line_cells_expected": 52,
+    "extra_invoices": 0,
+    "missing_invoices": 0,
+    "extra_line_items": 0,
+    "exact_invoices": 13,
+    "header_accuracy_pct": 100.0,
+    "null_abstention_pct": 100.0,
+    "line_cell_accuracy_pct": 100.0,
+    "full_invoice_accuracy_pct": 100.0,
+    "submitted": 13,
+    "succeeded": 11,
+    "success_rate_pct": 84.62,
+    "failure_rate_pct": 15.38,
+    "valid_documents": 11,
+    "valid_document_success_pct": 100.0,
+    "correct_status_count": 13,
+    "median_success_processing_ms": 72,
+    "min_success_processing_ms": 40,
+    "max_success_processing_ms": 805
+  },
+  "per_field": {
+    "invoice_number": {
+      "correct": 13,
+      "expected": 13
+    },
+    "invoice_date": {
+      "correct": 13,
+      "expected": 13
+    },
+    "supplier_name": {
+      "correct": 13,
+      "expected": 13
+    },
+    "customer_name": {
+      "correct": 12,
+      "expected": 12
+    },
+    "subtotal": {
+      "correct": 13,
+      "expected": 13
+    },
+    "tax": {
+      "correct": 13,
+      "expected": 13
+    },
+    "total": {
+      "correct": 13,
+      "expected": 13
+    },
+    "currency": {
+      "correct": 12,
+      "expected": 12
+    }
+  },
+  "documents": [
+    {
+      "name": "01-original-invoice.pdf",
+      "status": "completed",
+      "processing_ms": 63,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    },
+    {
+      "name": "02-conflicting-copy.pdf",
+      "status": "completed",
+      "processing_ms": 55,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    },
+    {
+      "name": "03-scanned-invoice.pdf",
+      "status": "completed",
+      "processing_ms": 442,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    },
+    {
+      "name": "04-low-contrast.jpg",
+      "status": "completed",
+      "processing_ms": 523,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    },
+    {
+      "name": "05-invoice-image.png",
+      "status": "completed",
+      "processing_ms": 431,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    },
+    {
+      "name": "06-multi-frame.tiff",
+      "status": "completed",
+      "processing_ms": 805,
+      "expected_status": "completed",
+      "expected_records": 2,
+      "actual_records": 2,
+      "mismatches": []
+    },
+    {
+      "name": "07-two-page-invoice.pdf",
+      "status": "completed",
+      "processing_ms": 67,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    },
+    {
+      "name": "08-incomplete-invoice.pdf",
+      "status": "completed",
+      "processing_ms": 49,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    },
+    {
+      "name": "09-register.csv",
+      "status": "completed",
+      "processing_ms": 40,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    },
+    {
+      "name": "10-billing-workbook.xlsx",
+      "status": "completed",
+      "processing_ms": 84,
+      "expected_status": "completed",
+      "expected_records": 2,
+      "actual_records": 2,
+      "mismatches": []
+    },
+    {
+      "name": "12-corrupt.pdf",
+      "status": "failed",
+      "processing_ms": 8,
+      "expected_status": "failed",
+      "expected_records": 0,
+      "actual_records": 0,
+      "mismatches": []
+    },
+    {
+      "name": "13-malformed.csv",
+      "status": "failed",
+      "processing_ms": 12,
+      "expected_status": "failed",
+      "expected_records": 0,
+      "actual_records": 0,
+      "mismatches": []
+    },
+    {
+      "name": "11-legacy-ledger.xls",
+      "status": "completed",
+      "processing_ms": 72,
+      "expected_status": "completed",
+      "expected_records": 1,
+      "actual_records": 1,
+      "mismatches": []
+    }
+  ],
+  "benchmark": {
+    "pages": 1000,
+    "bytes": 2092340,
+    "status": "completed",
+    "invoices": 1000,
+    "processing_ms": 7288,
+    "upload_to_detail_ms": 7510,
+    "scanned_pages": 0
+  },
+  "mixed_benchmark": {
+    "pages": 1000,
+    "bytes": 2259014,
+    "status": "completed",
+    "invoices": 1000,
+    "processing_ms": 23073,
+    "upload_to_detail_ms": 23611,
+    "scanned_pages": 10
+  }
+}
