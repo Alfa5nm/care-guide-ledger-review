@@ -21,6 +21,6 @@ test_source_preview_renders_pdf_and_tiff_with_page_bounds (test_system.AppTests.
 test_validation_math (test_system.AppTests.test_validation_math) ... ok
 
 ----------------------------------------------------------------------
-Ran 17 tests in 4.023s
+Ran 17 tests in 3.528s
 
 OK

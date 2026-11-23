@@ -28,9 +28,9 @@
     "valid_documents": 11,
     "valid_document_success_pct": 100.0,
     "correct_status_count": 13,
-    "median_success_processing_ms": 41,
-    "min_success_processing_ms": 25,
-    "max_success_processing_ms": 546
+    "median_success_processing_ms": 39,
+    "min_success_processing_ms": 27,
+    "max_success_processing_ms": 555
   },
   "per_field": {
     "invoice_number": {
@@ -70,7 +70,7 @@
     {
       "name": "01-original-invoice.pdf",
       "status": "completed",
-      "processing_ms": 42,
+      "processing_ms": 39,
       "expected_status": "completed",
       "expected_records": 1,
       "actual_records": 1,
@@ -79,7 +79,7 @@
     {
       "name": "02-conflicting-copy.pdf",
       "status": "completed",
-      "processing_ms": 35,
+      "processing_ms": 31,
       "expected_status": "completed",
       "expected_records": 1,
       "actual_records": 1,
@@ -88,7 +88,7 @@
     {
       "name": "03-scanned-invoice.pdf",
       "status": "completed",
-      "processing_ms": 384,
+      "processing_ms": 324,
       "expected_status": "completed",
       "expected_records": 1,
       "actual_records": 1,
@@ -97,7 +97,7 @@
     {
       "name": "04-low-contrast.jpg",
       "status": "completed",
-      "processing_ms": 329,
+      "processing_ms": 312,
       "expected_status": "completed",
       "expected_records": 1,
       "actual_records": 1,
@@ -106,7 +106,7 @@
     {
       "name": "05-invoice-image.png",
       "status": "completed",
-      "processing_ms": 321,
+      "processing_ms": 310,
       "expected_status": "completed",
       "expected_records": 1,
       "actual_records": 1,
@@ -115,7 +115,7 @@
     {
       "name": "06-multi-frame.tiff",
       "status": "completed",
-      "processing_ms": 546,
+      "processing_ms": 555,
       "expected_status": "completed",
       "expected_records": 2,
       "actual_records": 2,
@@ -124,7 +124,7 @@
     {
       "name": "07-two-page-invoice.pdf",
       "status": "completed",
-      "processing_ms": 38,
+      "processing_ms": 31,
       "expected_status": "completed",
       "expected_records": 1,
       "actual_records": 1,
@@ -133,7 +133,7 @@
     {
       "name": "08-incomplete-invoice.pdf",
       "status": "completed",
-      "processing_ms": 31,
+      "processing_ms": 28,
       "expected_status": "completed",
       "expected_records": 1,
       "actual_records": 1,
@@ -142,7 +142,7 @@
     {
       "name": "09-register.csv",
       "status": "completed",
-      "processing_ms": 25,
+      "processing_ms": 27,
       "expected_status": "completed",
       "expected_records": 1,
       "actual_records": 1,
@@ -151,7 +151,7 @@
     {
       "name": "10-billing-workbook.xlsx",
       "status": "completed",
-      "processing_ms": 41,
+      "processing_ms": 40,
       "expected_status": "completed",
       "expected_records": 2,
       "actual_records": 2,
@@ -160,7 +160,7 @@
     {
       "name": "12-corrupt.pdf",
       "status": "failed",
-      "processing_ms": 4,
+      "processing_ms": 5,
       "expected_status": "failed",
       "expected_records": 0,
       "actual_records": 0,
@@ -169,7 +169,7 @@
     {
       "name": "13-malformed.csv",
       "status": "failed",
-      "processing_ms": 5,
+      "processing_ms": 4,
       "expected_status": "failed",
       "expected_records": 0,
       "actual_records": 0,
@@ -190,17 +190,17 @@
     "bytes": 2092340,
     "status": "completed",
     "invoices": 1000,
-    "processing_ms": 2803,
-    "upload_to_detail_ms": 2896,
+    "processing_ms": 2673,
+    "upload_to_detail_ms": 2759,
     "scanned_pages": 0
   },
   "mixed_benchmark": {
     "pages": 1000,
-    "bytes": 2263628,
+    "bytes": 2259014,
     "status": "completed",
     "invoices": 1000,
-    "processing_ms": 6048,
-    "upload_to_detail_ms": 6156,
+    "processing_ms": 5346,
+    "upload_to_detail_ms": 5436,
     "scanned_pages": 10
   }
 }

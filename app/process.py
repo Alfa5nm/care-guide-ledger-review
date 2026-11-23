@@ -66,7 +66,7 @@ def row_value(value):
 
 def read_pdf_page(page, warnings, source):
     text = page.get_text(sort=True).strip()
-    zoom = min(2.4, (12_000_000 / max(1, page.rect.get_area())) ** 0.5)
+    zoom = min(2.5, (12_000_000 / max(1, page.rect.get_area())) ** 0.5)
     matrix = fitz.Matrix(zoom, zoom)
 
     def read_region(region):
