@@ -145,11 +145,14 @@ def main():
     if args.frames:
         args.frames.mkdir(parents=True, exist_ok=True)
     executable = os.getenv("DOCINTEL_BROWSER_EXECUTABLE") or None
+    password = os.getenv("DOCINTEL_SMOKE_PASSWORD")
     with sync_playwright() as runner:
         browser = runner.chromium.launch(executable_path=executable,
                                          slow_mo=120 if args.video else 0)
         viewport = {"width": 1280, "height": 900}
         context_options = {"viewport": viewport}
+        if password:
+            context_options["http_credentials"] = {"username": "reviewer", "password": password, "origin": args.url}
         if args.video:
             context_options.update(record_video_dir=args.video, record_video_size=viewport)
         context = browser.new_context(**context_options)

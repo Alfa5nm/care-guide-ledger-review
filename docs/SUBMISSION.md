@@ -3,7 +3,8 @@
 | Deliverable | Location |
 |---|---|
 | Source and setup | [README](../README.md), `app/`, `frontend/`, `requirements.txt`, and `compose.yaml` |
-| Architecture and database schema | [Mermaid diagrams](ARCHITECTURE.md) and [SQLite DDL](../app/schema.sql) |
+| Architecture, EER, class diagram and database schema | [System design](SYSTEM_DESIGN.md) and [SQLite DDL](../app/schema.sql) |
+| Backend API and security | [Contracts and acceptance scenarios](BACKEND.md), [threat model](SECURITY.md), and the running application's /docs |
 | Automated tests and results | `tests/`, [test log](test-results.txt), and [browser verification](browser-results.txt) |
 | Measured evaluation | [Report](EVALUATION.md) and [raw results](evaluation.json) |
 | Current walkthrough | [Download the captioned MP4](../demo/Ledger_Review_Walkthrough.mp4) |

@@ -330,3 +330,16 @@ select:hover:not(:disabled) { border-color: #a69ae9; }
   th, td { padding: 8px; }
   .source-canvas { max-height: 55vh; padding: 11px; }
 }
+.workspace-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.workspace-heading a {
+  color: inherit;
+  font-weight: 600;
+  text-underline-offset: 3px;
+}

@@ -3,6 +3,7 @@ import json
 import os
 import time
 from contextlib import asynccontextmanager
+from html import escape
 from pathlib import Path
 from threading import Lock
 from typing import Literal
@@ -19,55 +20,87 @@ from . import db
 from .invoice import FIELDS, ITEM_FIELDS, clean_field, invoice_key, validate
 from .process import DocumentError, MAX_UNITS, SUFFIXES, source_preview
 from .search import index_document, search
-from .worker import history
+from .security import HOST, HOSTED, HOSTS, reviewer_authorized, validate_configuration
+from .worker import history, MAX_ATTEMPTS
 
 MAX_FILE = 64 * 1024 * 1024
 MAX_REQUEST = 150 * 1024 * 1024
 MAX_FILES = 12
 SUMMARY = "id,name,status,progress,stage,attempt,processing_ms,created_at"
 REVIEW_FLAGS = {"invalid_source_value", "ambiguous_field"}
-HOSTS = ["localhost", "127.0.0.1", "[::1]", "testserver"]
+MAX_WORKSPACE_BYTES = 160 * 1024 * 1024
+MAX_WORKSPACE_DOCUMENTS = 60
 PREVIEW_LOCK = Lock()
 
 
 @asynccontextmanager
 async def startup(app):
+    validate_configuration()
     db.initialize()
     yield
 
 
-app = FastAPI(title="Ledger Review API", version="1.0.0", lifespan=startup)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=HOSTS)
+app = FastAPI(title="Ledger Review API", version="2.0.0", lifespan=startup, docs_url=None, redoc_url=None)
+
+
+@app.get("/docs", include_in_schema=False)
+def documentation():
+    routes = "".join(
+        f"<tr><td>{escape(method.upper())}</td><td><code>{escape(path)}</code></td>"
+        f"<td>{escape(operation['summary'])}</td></tr>"
+        for path, operations in app.openapi()["paths"].items()
+        for method, operation in operations.items()
+    )
+    return Response(
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width"><title>Ledger Review API</title></head>'
+        '<body><main><h1>Ledger Review API</h1><p><a href="/openapi.json">OpenAPI contract</a></p>'
+        '<p>Upload documents, inspect jobs and invoices, review evidence, correct records, and reconcile.</p>'
+        '<table><thead><tr><th>Method</th><th>Endpoint</th><th>Operation</th></tr></thead>'
+        f'<tbody>{routes}</tbody></table><p><a href="/">Return to the workspace</a></p>'
+        '</main></body></html>', media_type="text/html",
+    )
 
 
 @app.middleware("http")
 async def local_boundary(request: Request, call_next):
-    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+    method = request.method
+    readiness = request.url.path == "/api/health" and method in {"GET", "HEAD"}
+    if HOSTED and not readiness and not reviewer_authorized(request.headers.get("authorization", "")):
+        return JSONResponse(
+            {"detail": "Reviewer credentials are required."}, status_code=401,
+            headers={"WWW-Authenticate": 'Basic realm="Ledger Review", charset="UTF-8"', "Cache-Control": "no-store"},
+        )
+    if method not in {"GET", "HEAD", "OPTIONS"}:
         origin = request.headers.get("origin")
-        allowed = {f"{request.url.scheme}://{request.headers.get('host')}"}
-        configured = os.getenv("DOCINTEL_BROWSER_ORIGIN")
-        if configured:
-            allowed.add(configured)
+        allowed = {f"https://{HOST}"} if HOSTED else {
+            f"{request.url.scheme}://{request.headers.get('host')}", os.getenv("DOCINTEL_BROWSER_ORIGIN")
+        }
         if origin and origin not in allowed:
             return JSONResponse({"detail": "Cross-origin write denied."}, status_code=403)
-    if request.method == "POST":
+    if method in {"POST", "PATCH"}:
         raw = request.headers.get("content-length")
         if raw is None:
             return JSONResponse({"detail": "Content-Length is required."}, status_code=411)
-        if not raw.isdigit() or int(raw) > MAX_REQUEST:
+        limit = MAX_REQUEST if request.url.path == "/api/documents" else 1024 * 1024
+        if not raw.isascii() or not raw.isdecimal() or len(raw) > 9 or int(raw) > limit:
             return JSONResponse({"detail": "Request exceeds the upload limit."}, status_code=413)
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["X-Frame-Options"] = "DENY"
-    if request.url.path not in {"/docs", "/redoc"}:
-        response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; "
-            "form-action 'self'; style-src 'self'; img-src 'self' blob:"
-        )
-    if request.url.path.startswith("/api/"):
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; "
+        "form-action 'self'; style-src 'self'; img-src 'self' blob:"
+    )
+    if HOSTED:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000"
+    if HOSTED or request.url.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
     return response
+
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=HOSTS)
 
 
 @app.get("/api/health")
@@ -127,6 +160,10 @@ def insert_upload(upload):
             return {"name": name, "error": "File is empty."}
         temporary.replace(path)
         with db.session(write=True) as conn:
+            if HOSTED:
+                count, used = conn.execute("SELECT count(*), coalesce(sum(size_bytes), 0) FROM documents").fetchone()
+                if count >= MAX_WORKSPACE_DOCUMENTS or used + size > MAX_WORKSPACE_BYTES:
+                    return {"name": name, "error": "The demo workspace storage quota was reached."}
             conn.execute(
                 """INSERT INTO documents(id,name,suffix,size_bytes,sha256,status,created_at)
                    VALUES (?,?,?,?,?,'queued',?)""",
@@ -207,6 +244,7 @@ def document_detail(document_id: str):
         conn.execute("BEGIN")
         doc = get_document(conn, document_id)
         doc["warnings"] = json.loads(doc["warnings"])
+        doc["can_retry"] = doc["status"] == "failed" and doc["attempt"] < MAX_ATTEMPTS
         doc["invoices"] = [
             invoice_detail(conn, row) for row in conn.execute(
                 "SELECT * FROM invoices WHERE document_id=? ORDER BY position LIMIT 100", (document_id,)
@@ -256,9 +294,11 @@ def retry(document_id: str):
         doc = get_document(conn, document_id)
         if doc["status"] != "failed":
             raise HTTPException(409, "Only failed jobs can be reprocessed.")
+        if doc["attempt"] >= MAX_ATTEMPTS:
+            raise HTTPException(409, "This document has exhausted its processing attempts.")
         conn.execute(
             """UPDATE documents SET status='queued', progress=0, stage='Queued', error=NULL,
-               attempt=0, processing_ms=NULL WHERE id=?""", (document_id,),
+               processing_ms=NULL WHERE id=?""", (document_id,),
         )
         history(conn, document_id, "retry_requested")
     return {"id": document_id, "status": "queued"}
@@ -281,6 +321,7 @@ def correct_invoice(invoice_id: int, correction: Correction):
         if row["revision"] != correction.revision:
             raise HTTPException(409, "This invoice was updated. Reload it before editing.")
         data = json.loads(row["data"])
+        before_data = row["data"]
         previous = {field: data.get(field) for field in correction.changes}
         for field, value in correction.changes.items():
             if field == "line_items":
@@ -306,6 +347,10 @@ def correct_invoice(invoice_id: int, correction: Correction):
                  (flag["code"] in REVIEW_FLAGS and flag.get("field") not in correction.changes)]
         conn.execute("UPDATE invoices SET data=?,duplicate_key=?,issues=?,revision=revision+1 WHERE id=?",
                      (json.dumps(data), invoice_key(data), json.dumps(flags + validate(data)), invoice_id))
+        conn.execute(
+            "INSERT INTO invoice_corrections VALUES (?, ?, ?, ?, ?)",
+            (invoice_id, row["revision"] + 1, time.time(), before_data, json.dumps(data)),
+        )
         history(conn, row["document_id"], "corrected", {"invoice_id": invoice_id, "before": previous,
                 "after": {field: data[field] for field in correction.changes}})
         document = conn.execute("SELECT name,body FROM documents WHERE id=?", (row["document_id"],)).fetchone()

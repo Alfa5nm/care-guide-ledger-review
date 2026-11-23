@@ -117,7 +117,7 @@ def process_next():
     except Exception as exc:
         error = str(exc) if isinstance(exc, DocumentError) else "Processing stopped unexpectedly."
         if not isinstance(exc, DocumentError):
-            log.exception("Document job failed")
+            log.error("Document job failed (%s)", type(exc).__name__)
         with db.session(write=True) as conn:
             updated = conn.execute(
                 """UPDATE documents SET status='failed',stage='Failed',error=?,lease_until=NULL,

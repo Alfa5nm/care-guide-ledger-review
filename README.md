@@ -27,6 +27,12 @@ Open [Ledger Review](http://127.0.0.1:8000) or [API docs](http://127.0.0.1:8000/
 
 A Docker configuration is also provided. Run `docker compose up --build` and open the same address. The named volume persists jobs and documents. The API is published on the host loopback.
 
+## Railway assessment demo
+
+The Railway configuration runs one protected service with a supervised OCR worker and a persistent volume. Connect a volume at `/workspace/volume`, set `RAILWAY_RUN_UID=0` for the mount bootstrap, set `PORT=8000`, and generate a Railway public domain. Before deploying, store a random reviewer password of at least 24 characters as `DOCINTEL_REVIEW_PASSWORD`. Set it through Railway Variables and keep it out of the repository. The container starts the API and worker as the unprivileged ledger account after preparing the mounted data directory.
+
+Open the deployment with user `reviewer` and the Railway Variables password. The service uses HTTPS and accepts synthetic assessment data. The public readiness endpoint is `/api/health`. The authenticated API reference is `/docs`. Use a Railway volume backup before a change that affects storage. See the [system design](docs/SYSTEM_DESIGN.md), [backend contracts](docs/BACKEND.md), and [security model](docs/SECURITY.md) for the deployment boundary.
+
 The Compose services run as a non-root user with read-only root filesystems, dedicated temporary storage, and dropped Linux capabilities. The worker starts after the API health check succeeds. The health check verifies SQLite connectivity.
 
 For a shared deployment, put the service behind TLS and authenticated access, isolate document rendering from the API process, and establish per-user document authorization, upload rate limits, retention, backup and restore, and monitoring. Test those controls and measure workload capacity before exposing financial documents to other users.

@@ -300,7 +300,10 @@ function Detail({ id, name, docs, notify, refresh, back }) {
       <p>{doc ? `${doc.stage} · ${doc.invoice_count} invoice ${doc.invoice_count === 1 ? 'record' : 'records'}${doc.processing_ms !== null ? ' · ' + doc.processing_ms + ' ms' : ''}` : 'Loading document…'}</p>
     </div>{doc && <Status value={doc.status}/>}</header>
     {doc && <>
-      {doc.error && <div className="notice error">{doc.error} <button onClick={retry}>Retry processing</button></div>}
+      {doc.error && <div className="notice error" role="alert">
+        <span>{doc.error} {doc.can_retry === false && 'Processing attempts exhausted.'}</span>
+        {doc.can_retry !== false && <button onClick={retry}>Retry processing</button>}
+      </div>}
       {doc.warnings.length > 0 && <details className="notice"><summary>{doc.warnings.length} processing warnings</summary><ul>{doc.warnings.map(warning => <li key={warning}>{warning}</li>)}</ul></details>}
       <div className="detail-nav" role="group" aria-label="Document sections">
         <button aria-pressed={section === 'review'} onClick={() => show('review')}>Invoice review</button>
@@ -495,7 +498,11 @@ function App() {
       {selected ? <Detail key={selected.id} id={selected.id} name={selected.name} docs={docs} notify={notify} refresh={refresh} back={() => navigate('documents')}/>
       : view === 'search' ? <SearchView open={open} notify={notify} morphId={morphId}/>
       : <>
-        <header className="heading"><h1>Documents</h1><p>Review invoices, resolve discrepancies, and compare source documents.</p></header>
+        <header className="heading workspace-heading">
+          <div><h1>Documents</h1><p>Upload invoices, review source evidence, and resolve discrepancies.</p></div>
+          <a href="/docs">API documentation</a>
+        </header>
+        {offline && <p className="notice error" role="alert">The workspace is offline. Previously listed documents may be out of date.</p>}
         <section className="summary" aria-label="Job counts">
           {[
             ['Recent documents', docs.length, 'documents', ''],

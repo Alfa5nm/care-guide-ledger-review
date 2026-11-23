@@ -32,6 +32,14 @@ CREATE TABLE IF NOT EXISTS invoices (
 );
 CREATE INDEX IF NOT EXISTS invoice_document ON invoices(document_id);
 CREATE INDEX IF NOT EXISTS invoice_duplicate ON invoices(duplicate_key);
+CREATE TABLE IF NOT EXISTS invoice_corrections (
+    invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+    revision INTEGER NOT NULL CHECK(revision > 0),
+    happened_at REAL NOT NULL,
+    before_data TEXT NOT NULL CHECK(json_valid(before_data)),
+    after_data TEXT NOT NULL CHECK(json_valid(after_data)),
+    PRIMARY KEY(invoice_id, revision)
+);
 CREATE TABLE IF NOT EXISTS history (
     id INTEGER PRIMARY KEY,
     document_id TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
@@ -45,3 +53,4 @@ CREATE TABLE IF NOT EXISTS search_vectors (
     document_id TEXT PRIMARY KEY REFERENCES documents(id) ON DELETE CASCADE,
     vector TEXT NOT NULL
 );
+PRAGMA user_version = 2;
