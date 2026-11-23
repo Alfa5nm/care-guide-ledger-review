@@ -19,4 +19,6 @@
 
 The demo has a shared identity and workspace, uses one replica, and limits accepted data. Railway trial availability and quotas apply. Use synthetic documents. Running a purpose-built load test and testing backup restoration, individual access, and parser isolation are separate acceptance steps for a financial-data deployment.
 
+The demo accepts up to 100 stored documents or 160 MiB of accepted upload data, whichever limit is reached first. Document records remain available between visits.
+
 The readiness endpoint was independently probed during acceptance. The CLI-uploaded deployment did not reflect a provider health-check setting in its service manifest. The Docker entry point starts both processes independently of the provider's config-file settings.

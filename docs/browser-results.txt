@@ -4,4 +4,4 @@ The protected Railway workspace passed the Edge walkthrough with synthetic docum
 
 The final Railway API check also verified readiness, anonymous rejection for protected routes, authenticated API documentation, rejection of a mismatched write origin, the labeled corpus, missing-page handling, rejection of retry on a completed job, and rejection of empty or unsupported uploads. A previously uploaded synthetic record was still readable after redeployment.
 
-The captioned MP4 was captured on the earlier successful browser run. The browser workflows were rerun on the final adaptive-OCR deployment after fixing the cross-platform low-contrast fixture.
+The upgrade walkthrough uses a synthetic invoice with rearranged headers and item columns. Edge activated the arithmetic flag with Enter, confirmed keyboard focus landed on Total, reviewed the source quote, saved 115 → 110, and verified the arithmetic flag cleared. The duplicate flag remained. The recording demonstrates that workflow alongside the broader end-to-end check.

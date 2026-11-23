@@ -29,7 +29,7 @@ MAX_FILES = 12
 SUMMARY = "id,name,status,progress,stage,attempt,processing_ms,created_at"
 REVIEW_FLAGS = {"invalid_source_value", "ambiguous_field"}
 MAX_WORKSPACE_BYTES = 160 * 1024 * 1024
-MAX_WORKSPACE_DOCUMENTS = 60
+MAX_WORKSPACE_DOCUMENTS = 100
 PREVIEW_LOCK = Lock()
 
 

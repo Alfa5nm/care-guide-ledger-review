@@ -1,0 +1,47 @@
+{
+  "scanned_pages": 100,
+  "concurrent_uploads": 4,
+  "timed_out": 0,
+  "results": [
+    {
+      "file": "benchmark-100-mixed-pages.pdf",
+      "status": "completed",
+      "records": 100,
+      "upload_ms": 175,
+      "worker_ms": 47016,
+      "queue_ms": 42
+    },
+    {
+      "file": "parallel-0.pdf",
+      "status": "completed",
+      "records": 1,
+      "upload_ms": 40,
+      "worker_ms": 35,
+      "queue_ms": 46978
+    },
+    {
+      "file": "parallel-1.pdf",
+      "status": "completed",
+      "records": 1,
+      "upload_ms": 43,
+      "worker_ms": 43,
+      "queue_ms": 47018
+    },
+    {
+      "file": "parallel-2.pdf",
+      "status": "completed",
+      "records": 1,
+      "upload_ms": 49,
+      "worker_ms": 37,
+      "queue_ms": 47071
+    },
+    {
+      "file": "parallel-3.pdf",
+      "status": "completed",
+      "records": 1,
+      "upload_ms": 58,
+      "worker_ms": 28,
+      "queue_ms": 47112
+    }
+  ]
+}

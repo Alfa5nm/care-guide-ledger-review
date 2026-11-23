@@ -7,7 +7,7 @@ The React and FastAPI endpoints share an origin. The API index is at /docs and l
 | Upload | Multipart field files. HTTP 202 contains per-file acceptance or rejection. Unsupported names, empty inputs and quota exhaustion reject the affected file. Unsupported request framing or excess request size returns an HTTP error before a job is queued. |
 | List and detail | Paginated summaries, progress, warnings, extraction, and ordered processing history. An unknown identifier returns 404. |
 | Source | Raster previews for supported PDFs and images. Spreadsheet review uses paginated extracted text. Invalid pages, busy rendering, and corrupt files have separate errors. |
-| Correction | PATCH uses the current invoice revision. A stale value returns 409, leaving the newer record intact. Reindexing and correction audit commit with the new revision. |
+| Correction | PATCH uses the current invoice revision. A stale value returns 409, leaving the newer record intact. Reindexing and correction audit commit with the new revision. Invoice responses include an additive evidence_pages map for quotes located on one source page or frame. Older records can use an empty map. |
 | Reconciliation | Compares explicit invoice identifiers with field-level matches, mismatches, or missing evidence. |
 | Search | Keyword filtering uses SQLite FTS. Concept search uses local finance vocabulary and sparse vectors. Both projections update after a correction. |
 | Retry | Only failed jobs can return to the queue, within the configured attempt bound. Invalid transitions return 409. |

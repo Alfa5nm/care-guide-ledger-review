@@ -8,6 +8,8 @@ test_hosted_configuration_requires_password_and_disables_model (test_hosted.Host
 test_low_contrast_fixture_preserves_unit_price (test_hosted.HostedTests.test_low_contrast_fixture_preserves_unit_price) ... ok
 test_only_readiness_is_anonymous (test_hosted.HostedTests.test_only_readiness_is_anonymous) ... ok
 test_quota_and_retry_bound_with_invalid_synthetic_file (test_hosted.HostedTests.test_quota_and_retry_bound_with_invalid_synthetic_file) ... ok
+test_date_order_with_competing_valid_interpretations_abstains (test_layout.LayoutTests.test_date_order_with_competing_valid_interpretations_abstains) ... ok
+test_spatial_columns_and_multi_page_evidence (test_layout.LayoutTests.test_spatial_columns_and_multi_page_evidence) ... ok
 test_ambiguous_and_invalid_numbers_are_not_invented (test_system.AppTests.test_ambiguous_and_invalid_numbers_are_not_invented) ... ok
 test_correction_revalidation_search_and_revision_conflict (test_system.AppTests.test_correction_revalidation_search_and_revision_conflict) ... ok
 test_csv_xlsx_and_xls (test_system.AppTests.test_csv_xlsx_and_xls) ... ok
@@ -28,7 +30,7 @@ test_source_preview_renders_pdf_and_tiff_with_page_bounds (test_system.AppTests.
 test_validation_math (test_system.AppTests.test_validation_math) ... ok
 
 ----------------------------------------------------------------------
-Ran 22 tests in 6.785s
+Ran 24 tests in 5.727s
 
 OK
 
@@ -42,6 +44,8 @@ test_hosted_configuration_requires_password_and_disables_model (test_hosted.Host
 test_low_contrast_fixture_preserves_unit_price (test_hosted.HostedTests.test_low_contrast_fixture_preserves_unit_price) ... ok
 test_only_readiness_is_anonymous (test_hosted.HostedTests.test_only_readiness_is_anonymous) ... ok
 test_quota_and_retry_bound_with_invalid_synthetic_file (test_hosted.HostedTests.test_quota_and_retry_bound_with_invalid_synthetic_file) ... ok
+test_date_order_with_competing_valid_interpretations_abstains (test_layout.LayoutTests.test_date_order_with_competing_valid_interpretations_abstains) ... ok
+test_spatial_columns_and_multi_page_evidence (test_layout.LayoutTests.test_spatial_columns_and_multi_page_evidence) ... ok
 test_ambiguous_and_invalid_numbers_are_not_invented (test_system.AppTests.test_ambiguous_and_invalid_numbers_are_not_invented) ... ok
 test_correction_revalidation_search_and_revision_conflict (test_system.AppTests.test_correction_revalidation_search_and_revision_conflict) ... ok
 test_csv_xlsx_and_xls (test_system.AppTests.test_csv_xlsx_and_xls) ... ok
@@ -62,6 +66,6 @@ test_source_preview_renders_pdf_and_tiff_with_page_bounds (test_system.AppTests.
 test_validation_math (test_system.AppTests.test_validation_math) ... ok
 
 ----------------------------------------------------------------------
-Ran 22 tests in 9.134s
+Ran 24 tests in 7.509s
 
 OK

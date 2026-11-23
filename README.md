@@ -2,6 +2,8 @@
 
 A local document intelligence application for financial documents. Upload PDFs, scans, images, spreadsheets, and CSVs, then review extracted invoices, correct errors, and compare records across files.
 
+[Assessment release branch](https://github.com/Alfa5nm/care-guide-ledger-review/tree/assessment/railway-final) · [Verified implementation](https://github.com/Alfa5nm/care-guide-ledger-review/commit/77c6a15ae68600e3996b47765a0f18c6cc2df894) · [Railway demo](https://ledger-review-production.up.railway.app/). The readiness response includes the deployed Git revision in the X-Ledger-Revision header.
+
 ## Run locally
 
 Install Python 3.12, Node.js 22 or newer, and Tesseract with English language data. On Debian or Ubuntu the OCR packages are `tesseract-ocr` and `tesseract-ocr-eng`. On Windows, add the directory containing `tesseract.exe` to PATH and check `tesseract --version`.
@@ -93,4 +95,4 @@ A shared deployment would need authentication and authorization, isolated parser
 
 ## Assessment deliverables
 
-See the [submission index](docs/SUBMISSION.md) for the architecture, schema, measured evaluation, test logs, AI disclosure and current captioned walkthrough.
+See the [submission index](docs/SUBMISSION.md) for the architecture, schema, measured evaluation, test logs, AI disclosure and current captioned walkthrough. The [layout holdout report](docs/LAYOUT_EVALUATION.md) compares extraction to the previous release and documents the remaining errors.
