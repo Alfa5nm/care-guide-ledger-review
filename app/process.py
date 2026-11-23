@@ -29,12 +29,12 @@ class Section:
     rows: list | None = None
 
 
-def ocr(image):
+def ocr(image, min_width=1300):
     if image.width * image.height > Image.MAX_IMAGE_PIXELS:
         raise DocumentError("Image exceeds the pixel limit.")
     image = ImageOps.autocontrast(ImageOps.grayscale(ImageOps.exif_transpose(image)))
-    if image.width < 1300:
-        scale = min(2, 1300 / image.width)
+    if image.width < min_width:
+        scale = min(2, min_width / image.width)
         size = (round(image.width * scale), round(image.height * scale))
         if size[0] * size[1] <= Image.MAX_IMAGE_PIXELS:
             image = image.resize(size, Image.Resampling.LANCZOS)
@@ -245,7 +245,7 @@ def extract(path: Path, suffix, progress):
                 if total > MAX_UNITS:
                     raise DocumentError("Image exceeds the frame limit.")
                 for index, frame in enumerate(ImageSequence.Iterator(document), 1):
-                    add(f"Image {index}", lambda: ocr(frame))
+                    add(f"Image {index}", lambda: ocr(frame, min_width=1500))
                     progress(5 + index * 55 // total, f"Reading image {index} of {total}")
     except DocumentError:
         raise

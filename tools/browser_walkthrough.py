@@ -3,11 +3,12 @@ import argparse
 import os
 import re
 from pathlib import Path
+from uuid import uuid4
 
 from playwright.sync_api import expect, sync_playwright
 
 
-def verify(page, base, samples, frames, record=False):
+def verify(page, base, samples, frames, record=False, prefix=""):
     errors = []
     page.on("pageerror", lambda error: errors.append(str(error)))
     count = 0
@@ -46,15 +47,18 @@ def verify(page, base, samples, frames, record=False):
     chapter("Ledger Review", "Upload multiple financial documents in one batch.")
     names = ["01-original-invoice.pdf", "02-conflicting-copy.pdf", "03-scanned-invoice.pdf",
              "10-billing-workbook.xlsx", "12-corrupt.pdf"]
-    page.locator('input[type="file"]').set_input_files([samples / name for name in names])
+    page.locator('input[type="file"]').set_input_files([
+        {"name": prefix + name, "mimeType": "application/octet-stream", "buffer": (samples / name).read_bytes()}
+        for name in names
+    ])
     expect(page.get_by_role("status")).to_contain_text("5 queued")
     chapter("Batch upload", "The API queues each file independently and the worker reports progress.")
-    bad = page.get_by_role("row").filter(has_text="12-corrupt.pdf")
-    expect(bad).to_contain_text("failed", timeout=15_000)
-    expect(page.get_by_role("row").filter(has_text="03-scanned-invoice.pdf")).to_contain_text("completed", timeout=15_000)
+    bad = page.get_by_role("row").filter(has_text=prefix + "12-corrupt.pdf")
+    expect(bad).to_contain_text("failed", timeout=60_000)
+    expect(page.get_by_role("row").filter(has_text=prefix + "03-scanned-invoice.pdf")).to_contain_text("completed", timeout=60_000)
     chapter("Processing completed", "The scan was read by OCR. The broken PDF failed without stopping the other files.")
 
-    page.get_by_role("button", name="03-scanned-invoice.pdf", exact=True).click()
+    page.get_by_role("button", name=prefix + "03-scanned-invoice.pdf", exact=True).click()
     expect(page.get_by_role("heading", name="CG-2001")).to_be_visible()
     expect(page.get_by_text("Office paper")).to_be_visible()
     source = page.get_by_role("region", name="Source preview")
@@ -85,7 +89,7 @@ def verify(page, base, samples, frames, record=False):
     page.get_by_role("button", name="Invoice review").click()
     chapter("OCR and source evidence", "Inspect the invoice fields and line items extracted from a scanned PDF.")
     page.get_by_role("button", name="Documents", exact=True).last.click()
-    page.get_by_role("button", name="02-conflicting-copy.pdf", exact=True).click()
+    page.get_by_role("button", name=prefix + "02-conflicting-copy.pdf", exact=True).click()
     expect(page.get_by_text("Subtotal plus tax differs from total.")).to_be_visible()
     chapter("Validation", "This invoice shows an inconsistent total and a duplicate supplier/invoice number.")
 
@@ -95,7 +99,7 @@ def verify(page, base, samples, frames, record=False):
         ("01-original-invoice.pdf", "Compare two PDFs. Their invoice number matches, but the totals differ."),
         ("10-billing-workbook.xlsx", "Compare PDF against Excel. The workbook agrees with this copy's recorded total."),
     ):
-        choices.select_option(label=alternative)
+        choices.select_option(label=prefix + alternative)
         selector = page.get_by_label("Comparison invoice")
         option = selector.locator("option").filter(has_text=re.compile("CG-1001"))
         expect(option).to_have_count(1)
@@ -117,7 +121,7 @@ def verify(page, base, samples, frames, record=False):
     chapter("Manual correction", "Saving the corrected total reruns arithmetic validation and records the change.")
 
     page.get_by_role("button", name="Documents", exact=True).last.click()
-    page.get_by_role("button", name="12-corrupt.pdf", exact=True).click()
+    page.get_by_role("button", name=prefix + "12-corrupt.pdf", exact=True).click()
     page.get_by_role("button", name="Retry processing").click()
     page.get_by_role("button", name="Processing history", exact=True).click()
     expect(page.get_by_text("retry requested", exact=False)).to_be_visible()
@@ -130,7 +134,7 @@ def verify(page, base, samples, frames, record=False):
     expect(page.get_by_text("No documents match this search.")).to_be_visible()
     page.get_by_label("Search mode").select_option("semantic")
     page.get_by_role("main").get_by_role("button", name="Search", exact=True).click()
-    expect(page.get_by_role("button", name="01-original-invoice.pdf", exact=True)).to_be_visible()
+    expect(page.get_by_role("button", name=prefix + "01-original-invoice.pdf", exact=True)).to_be_visible()
     chapter("Semantic search", 'Searching for "freight" finds invoices whose text says "Shipping fee".')
     assert not errors, errors
 
@@ -157,7 +161,8 @@ def main():
             context_options.update(record_video_dir=args.video, record_video_size=viewport)
         context = browser.new_context(**context_options)
         page = context.new_page()
-        verify(page, args.url, args.samples, args.frames, bool(args.video))
+        prefix = f"{uuid4().hex[:6]}-" if password else ""
+        verify(page, args.url, args.samples, args.frames, bool(args.video), prefix)
         page.set_viewport_size({"width": 390, "height": 844})
         page.get_by_role("navigation").get_by_role("button", name="Documents").click()
         expect(page.get_by_role("heading", name="Documents", exact=True)).to_be_visible()

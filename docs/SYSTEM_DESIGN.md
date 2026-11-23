@@ -112,4 +112,4 @@ Module names in the diagram describe responsibilities implemented as Python func
 
 Railway terminates HTTPS. One replica serves the UI and API and supervises the worker with the same mounted data directory. The demo disables outbound model use. Local mode can still opt into a configured model, which receives extracted text. Deployments with a shared reviewer credential must use synthetic data. Multi-replica work, managed retention, separate identity, isolated preview rendering, and restore drills are requirements for a live financial-data service.
 
-See [backend contracts](BACKEND.md), [schema DDL](../app/schema.sql), and [threat model](SECURITY.md).
+See [backend contracts](BACKEND.md), [storage and schema design](SCHEMA.md), [schema DDL](../app/schema.sql), and [threat model](SECURITY.md).

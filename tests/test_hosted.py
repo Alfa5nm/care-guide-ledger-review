@@ -67,3 +67,13 @@ class HostedTests(unittest.TestCase):
             with patch.dict("os.environ", {"DOCINTEL_LLM_URL": "https://example.invalid"}):
                 with self.assertRaises(RuntimeError):
                     security.validate_configuration()
+
+    def test_low_contrast_fixture_preserves_unit_price(self):
+        sample = Path(__file__).with_name("fixtures") / "low-contrast-invoice.jpg"
+        upload = self.client.post("/api/documents", auth=self.auth,
+                                  files={"files": (sample.name, sample.read_bytes())})
+        document_id = upload.json()["files"][0]["id"]
+        self.assertTrue(process_next())
+        result = self.client.get(f"/api/documents/{document_id}", auth=self.auth).json()
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["invoices"][0]["data"]["line_items"][0]["unit_price"], "50")

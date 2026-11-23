@@ -11,4 +11,6 @@ Check that hosted startup fails closed without a strong reviewer secret and with
 
 Use synthetic fixtures and unit or acceptance tests that assert denied access, bounded input, or safe state transitions through supported interfaces. Record which settings and behaviors were actually checked, the affected file and line, and the remaining assumptions. Read the repository and deployed application within the scope of the user's request.
 
-The fail-closed review method is adapted from the publicly documented Trail of Bits insecure-defaults workflow. Uses Codex repository skill discovery and existing test commands. [Upstream skill catalog](https://github.com/trailofbits/skills) and [OpenAI threat modeling reference](https://github.com/openai/codex-security/blob/main/plugins/codex-security/references/threat-model.md).
+For each suspected insecure default, follow the value to the actual decision, then try to disprove the finding with a stricter inherited setting, a startup failure, or a limited caller contract. Keep the review sequential and use existing unit and acceptance commands.
+
+The fail-closed review method adapts the [Trail of Bits Claude Code command](https://github.com/trailofbits/skills/blob/149d7b21f4067765b82e67029730b42d228ef4b4/plugins/insecure-defaults/commands/audit.md) under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). This adaptation also uses the [OpenAI threat modeling reference](https://github.com/openai/codex-security/blob/main/plugins/codex-security/references/threat-model.md).
