@@ -3,6 +3,7 @@ import argparse
 import csv
 import io
 import json
+import os
 import re
 import time
 from pathlib import Path
@@ -227,10 +228,13 @@ def main():
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=args.browser_executable)
         recording = {"record_video_dir": str(args.record), "record_video_size": viewport} if args.record else {}
-        context = browser.new_context(viewport=viewport, reduced_motion="reduce", **recording)
+        base = args.url.rstrip("/")
+        password = os.getenv("DOCINTEL_SMOKE_PASSWORD")
+        auth = {"http_credentials": {"username": "reviewer", "password": password, "origin": base}} if password else {}
+        context = browser.new_context(viewport=viewport, reduced_motion="reduce", **recording, **auth)
         page = context.new_page()
         try:
-            verify(page, args.url.rstrip("/"), args.samples, args.record, bool(args.record), report)
+            verify(page, base, args.samples, args.record, bool(args.record), report)
         finally:
             context.close()
             if page.video:

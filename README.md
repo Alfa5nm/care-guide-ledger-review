@@ -2,7 +2,7 @@
 
 A local document intelligence application for financial documents. Upload PDFs, scans, images, spreadsheets, and CSVs, then review extraction evidence, resolve duplicates, and export approved invoices to CSV.
 
-[Interview release branch](https://github.com/Alfa5nm/care-guide-ledger-review/tree/assessment/interview-oriented-development) · [Original assessment branch](https://github.com/Alfa5nm/care-guide-ledger-review/tree/assessment/railway-final) · [Original Railway demo](https://ledger-review-production.up.railway.app/). Run the interview edition locally with the instructions below.
+[Interview release branch](https://github.com/Alfa5nm/care-guide-ledger-review/tree/assessment/interview-oriented-development) · [Interview Railway demo](https://ledger-review-interview-production.up.railway.app/) · [Original assessment branch](https://github.com/Alfa5nm/care-guide-ledger-review/tree/assessment/railway-final) · [Original Railway demo](https://ledger-review-production.up.railway.app/). The protected demos use separate reviewer credentials and data stores. Local setup is below.
 
 ## Run locally
 
