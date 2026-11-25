@@ -7,12 +7,16 @@ The deployment stores SQLite and original documents below one mounted volume. SQ
 | Document | Generated UUID, accepted format, original display name, size, content hash, status, attempt and lease | Starts queued. The worker claims it in a write transaction; a terminal result clears its lease. |
 | Invoice | Integer ID, document foreign key, unique document and position, revision | Structured fields, source evidence, and monotonically increasing correction revision. The duplicate key is a lookup aid and can legitimately have multiple matches. |
 | Invoice correction | Invoice foreign key and positive revision as a composite key | Records before/after invoice snapshots in the correction transaction. Existing invoice revisions from schema v1 may precede the introduction of dedicated snapshots. |
+| Duplicate decision | Normalized invoice identity and canonical invoice foreign key | Stores the selected record, reason, time, and ordered member revisions. A view exposes decisions whose snapshots still match the live group. |
+| Invoice approval | Invoice foreign key, current invoice revision, and duplicate decision timestamp when applicable | Qualifies the current valid record for export. Corrections and group changes invalidate eligibility. |
+| Export batch | Generated ID, creation time, row count, and CSV bytes | Stores a completed batch for later byte-identical download. |
+| Exported invoice | Unique normalized identity and invoice foreign key, with a batch foreign key | Enforces at most one export per invoice or normalized identity. |
 | Document history | Integer event ID, document foreign key, event time and detail | Records intake, claim, success, failure, retry, and correction events. |
 | Keyword projection | Document identity and searchable body in FTS5 | Rebuilt by processing and by manual correction. |
 | Concept projection | Document foreign key as the primary key, sparse concept vector | Rebuilt in the same transaction as the corresponding result. |
 
 The original binary is stored by generated document ID and format. A display filename never determines the stored basename. File writes start in a temporary file and rename before inserting the associated document and submission event. A failed insertion removes the file.
 
-The v2 migration is additive. Startup creates the new correction table and updates SQLite's schema version in one transaction. Newer schema versions fail startup. For recovery, restore the database and original binaries together from the same volume backup. Verify readiness, file previews, and search against a restored copy before resuming writes.
+The v3 migration is additive. Startup creates the review and export tables and view and updates SQLite's schema version in one transaction. Existing invoices keep their data and require explicit approval before export. Newer schema versions fail startup. For recovery, restore the database and original binaries together from the same volume backup. Verify readiness, file previews, search, and CSV downloads against a restored copy before resuming writes.
 
 The current demo has a single reviewer workspace. A shared service would need individual identity, workspace-scoped keys and filters, audit actor identity, and storage policies before it accepted live financial data.

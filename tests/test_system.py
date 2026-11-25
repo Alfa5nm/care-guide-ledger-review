@@ -1,3 +1,4 @@
+import csv
 import io
 import json
 import os
@@ -5,6 +6,7 @@ import shutil
 import tempfile
 import time
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 
@@ -190,12 +192,14 @@ class AppTests(unittest.TestCase):
         process_next()
         record = self.detail(document_id)["invoices"][0]
         self.assertIn("total_mismatch", {issue["code"] for issue in record["issues"]})
+        self.assertEqual(1, self.client.get("/api/documents").json()[0]["review_count"])
         endpoint = f"/api/invoices/{record['id']}"
         self.assertEqual(422, self.client.patch(endpoint, json={"revision": 0, "changes": {"total": "bad"}}).status_code)
         payload = {"revision": 0, "changes": {"total": "110", "customer_name": "Evergreen Studios"}}
         result = self.client.patch(endpoint, json=payload)
         self.assertEqual(200, result.status_code, result.text)
         self.assertFalse(result.json()["needs_review"])
+        self.assertEqual(0, self.client.get("/api/documents").json()[0]["review_count"])
         self.assertEqual(409, self.client.patch(endpoint, json=payload).status_code)
         self.assertEqual(document_id, self.client.get("/api/search", params={"q": "Evergreen Studios"}).json()[0]["id"])
         event = self.detail(document_id)["history"][0]
@@ -216,10 +220,98 @@ class AppTests(unittest.TestCase):
             process_next()
         original = self.detail(a)["invoices"][0]
         self.assertEqual(2, len(original["duplicates"]))
+        summaries = {row["id"]: row for row in self.client.get("/api/documents").json()}
+        self.assertEqual(1, summaries[a]["review_count"])
         for document_id in (b, c):
             comparison = self.client.get("/api/reconcile", params={"left": original["id"], "right": self.detail(document_id)["invoices"][0]["id"]}).json()
             self.assertTrue(comparison["identity_match"])
             self.assertEqual(["total"], [field["field"] for field in comparison["fields"] if field["status"] == "different"])
+
+    def test_duplicate_decision_approval_and_immutable_export(self):
+        original_doc, copy_doc = self.upload("01-original-invoice.pdf", "02-conflicting-copy.pdf")
+        process_next()
+        process_next()
+        original = self.detail(original_doc)["invoices"][0]
+        duplicate = self.detail(copy_doc)["invoices"][0]
+        canonical = f"/api/invoices/{original['id']}"
+        other = f"/api/invoices/{duplicate['id']}"
+        approve = canonical + "/approve"
+        resolve = canonical + "/duplicate-resolution"
+        decision = {"members": {original["id"]: 0, duplicate["id"]: 0}, "reason": "Original supplier invoice"}
+        self.assertEqual(409, self.client.post(approve, json={"revision": 0}).status_code)
+        self.assertEqual(409, self.client.post(resolve, json=decision | {"members": {original["id"]: 1, duplicate["id"]: 0}}).status_code)
+        self.assertEqual(200, self.client.post(resolve, json=decision).status_code)
+        self.assertEqual(409, self.client.post(other + "/approve", json={"revision": 0}).status_code)
+        self.assertEqual(200, self.client.post(approve, json={"revision": 0}).status_code)
+        corrected = self.client.patch(canonical, json={"revision": 0, "changes": {"supplier_name": "+Harbor Supply"}})
+        self.assertEqual(200, corrected.status_code, corrected.text)
+        self.assertEqual([], self.client.get("/api/exports").json()["pending"])
+        self.assertEqual(409, self.client.post(approve, json={"revision": 0}).status_code)
+        self.assertEqual(409, self.client.post(approve, json={"revision": 1}).status_code)
+        updated = decision | {"members": {original["id"]: 1, duplicate["id"]: 0}}
+        self.assertEqual(200, self.client.post(resolve, json=updated).status_code)
+        self.assertEqual(200, self.client.post(approve, json={"revision": 1}).status_code)
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            responses = list(pool.map(lambda _: self.client.post("/api/exports", json={}), range(2)))
+        self.assertEqual([201, 409], sorted(response.status_code for response in responses))
+        batch = next(response.json() for response in responses if response.status_code == 201)
+        download = f"/api/exports/{batch['id']}/csv"
+        content = self.client.get(download).content
+        rows = list(csv.DictReader(io.StringIO(content.decode("utf-8"))))
+        self.assertEqual(1, len(rows))
+        self.assertEqual("'+Harbor Supply", rows[0]["supplier_name"])
+        self.assertEqual("110", rows[0]["total"])
+        self.assertIn(original_doc, rows[0]["source_reference"])
+        self.assertEqual(409, self.client.patch(canonical, json={"revision": 1, "changes": {"total": "111"}}).status_code)
+        self.assertEqual("exported", self.detail(original_doc)["invoices"][0]["review"]["status"])
+        with TestClient(app) as reopened:
+            self.assertEqual(content, reopened.get(download).content)
+        self.assertEqual(404, self.client.get("/api/exports/missing/csv").status_code)
+        late_copy = self.upload("01-original-invoice.pdf")[0]
+        process_next()
+        late = self.detail(late_copy)["invoices"][0]
+        self.assertTrue(late["review"]["prior_export"])
+        self.assertEqual(409, self.client.post(f"/api/invoices/{late['id']}/approve", json={"revision": 0}).status_code)
+        self.assertFalse(self.detail(original_doc)["invoices"][0]["needs_review"])
+        summaries = {row["id"]: row for row in self.client.get("/api/documents").json()}
+        self.assertEqual(0, summaries[original_doc]["review_count"])
+
+    def test_duplicate_membership_reopens_approved_invoice(self):
+        first, second = self.upload("01-original-invoice.pdf", "02-conflicting-copy.pdf")
+        process_next()
+        process_next()
+        a, b = [self.detail(doc)["invoices"][0] for doc in (first, second)]
+        endpoint = f"/api/invoices/{a['id']}"
+        decision = {"members": {a["id"]: 0, b["id"]: 0}, "reason": "Use original"}
+        self.assertEqual(200, self.client.post(endpoint + "/duplicate-resolution", json=decision).status_code)
+        self.assertEqual(200, self.client.post(endpoint + "/approve", json={"revision": 0}).status_code)
+        self.upload("10-billing-workbook.xlsx")
+        process_next()
+        self.assertEqual("needs_review", self.detail(first)["invoices"][0]["review"]["status"])
+        self.assertEqual([], self.client.get("/api/exports").json()["pending"])
+        self.assertEqual(409, self.client.post(endpoint + "/duplicate-resolution", json=decision).status_code)
+
+    def test_v2_upgrade_preserves_invoices_and_requires_approval(self):
+        document_id = self.upload("01-original-invoice.pdf")[0]
+        process_next()
+        before = self.detail(document_id)["invoices"][0]
+        with db.session() as conn:
+            conn.executescript("""
+                DROP TABLE exported_invoices;
+                DROP TABLE export_batches;
+                DROP TABLE invoice_approvals;
+                DROP VIEW current_duplicate_decisions;
+                DROP TABLE duplicate_decisions;
+                PRAGMA user_version=2;
+            """)
+        db.initialize()
+        with db.session() as conn:
+            self.assertEqual(3, conn.execute("PRAGMA user_version").fetchone()[0])
+        after = self.detail(document_id)["invoices"][0]
+        self.assertEqual(before, after)
+        self.assertTrue(after["review"]["can_approve"])
+        self.assertEqual({"pending": [], "batches": []}, self.client.get("/api/exports").json())
 
     def test_recovery_after_expired_lease(self):
         document_id = self.upload("01-original-invoice.pdf")[0]

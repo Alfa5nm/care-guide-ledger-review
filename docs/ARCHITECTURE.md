@@ -1,16 +1,16 @@
 # Ledger Review architecture and database schema
 
-Ledger Review accepts financial documents, processes them in a background worker, and gives reviewers a browser workspace for source inspection, corrections, search, and reconciliation.
+Ledger Review accepts financial documents, processes them in a background worker, and gives reviewers a browser workspace for evidence review, correction, reconciliation, and approved CSV export.
 
 ## 1. System architecture
 
 ```mermaid
 flowchart TD
   Web["Browser · React workspace"]
-  Edge["Optional hosted demo · Cloudflare Tunnel and password gate"]
+  Edge["Optional hosted demo · Railway edge and password gate"]
   API["FastAPI · serves built frontend and REST API"]
   Files["Private uploads · original files on disk"]
-  DB[("SQLite WAL · queue, invoices, history, search")]
+  DB[("SQLite WAL · queue, invoices, history, approvals, export batches")]
   Worker["Separate Python worker · claims and processes jobs"]
   OCR["Tesseract · local OCR"]
   Model["Optional compatible LLM endpoint"]
@@ -19,7 +19,7 @@ flowchart TD
   Web -->|"Hosted HTTPS mode"| Edge
   Edge --> API
   API -->|"Write and render originals"| Files
-  API -->|"Queue, review, search, correct"| DB
+  API -->|"Queue, review, search, approve, export"| DB
   DB -->|"Claim and renew lease"| Worker
   Files -->|"Read original"| Worker
   Worker -->|"Scan or raster region"| OCR
@@ -27,7 +27,7 @@ flowchart TD
   Worker -->|"Commit results or failure"| DB
 ```
 
-The API and worker use the same data directory. Original uploads are outside the static web directory. Local development runs one API process and one worker process. Docker Compose defines separate services with a shared volume. The hosted demo uses an isolated data store and a temporary tunnel. It has a shared password and no per-user database authorization.
+The API and worker use the same data directory. Original uploads are outside the static web directory. Local development runs one API process and one worker process. The original Railway demo uses an isolated data store and a shared password. The interview edition includes a [review and export schema](SCHEMA.md).
 
 ## 2. Upload to completed document
 

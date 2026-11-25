@@ -25,6 +25,7 @@ flowchart LR
 3. The worker leases one job at a time. It extracts digital text, parses spreadsheets or invokes OCR, normalizes fields, validates Decimal arithmetic, and writes the document result, invoices, search projections, and history in one transaction. The lease token prevents an old worker from publishing after recovery.
 4. The reviewer can inspect source pages and evidence, correct an invoice at a known revision, and compare explicit records across documents. A conflicting revision returns 409. Corrections retain before/after snapshots in a dedicated table.
 5. A failed job can be retried within its attempt budget. Recovery can reclaim an abandoned job after lease expiry. SQLite and uploads share one persistent volume. A supervised worker process and API share a deployment lifecycle.
+6. The reviewer selects a canonical invoice from an exact group revision snapshot and records the reason. Approval requires clean validation and current group membership. An export reserves each normalized identity, locks the record, and persists the CSV and batch history in a single SQLite write transaction.
 
 ## Enhanced entity-relationship model
 
@@ -35,6 +36,10 @@ erDiagram
     DOCUMENT ||--o| SEARCH_VECTOR : projects
     DOCUMENT ||--o| DOCUMENT_SEARCH : indexes
     INVOICE ||--o{ INVOICE_CORRECTION : revises
+    INVOICE ||--o{ DUPLICATE_DECISION : canonical
+    INVOICE ||--o| INVOICE_APPROVAL : qualifies
+    INVOICE ||--o| EXPORTED_INVOICE : locks
+    EXPORT_BATCH ||--|{ EXPORTED_INVOICE : includes
     DOCUMENT {
         text id PK
         text status
@@ -57,6 +62,30 @@ erDiagram
         real happened_at
         text before_data
         text after_data
+    }
+    DUPLICATE_DECISION {
+        text identity PK
+        integer canonical_id FK
+        text member_revisions
+        text reason
+        real resolved_at
+    }
+    INVOICE_APPROVAL {
+        integer invoice_id PK,FK
+        integer revision
+        real approved_at
+        real resolution_token
+    }
+    EXPORT_BATCH {
+        text id PK
+        real created_at
+        integer row_count
+        blob content
+    }
+    EXPORTED_INVOICE {
+        text identity PK
+        integer invoice_id FK,UK
+        text batch_id FK
     }
 ```
 
@@ -96,9 +125,18 @@ classDiagram
       index_document()
       search()
     }
+    class ExportReview {
+      duplicate_group()
+      resolve_duplicate()
+      approve_invoice()
+      create_export()
+      download_export()
+    }
     FastAPI --> DeploymentSecurity
     FastAPI --> Database
     FastAPI --> Search
+    FastAPI --> ExportReview
+    ExportReview --> Database
     Worker --> Database
     Worker --> Section
     Worker --> InvoiceExtraction

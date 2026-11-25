@@ -21,7 +21,8 @@ class HostedTests(unittest.TestCase):
 
     def test_only_readiness_is_anonymous(self):
         self.assertEqual(self.client.get("/api/health").status_code, 200)
-        for path in ("/", "/docs", "/openapi.json", "/api/documents", "/api/search?q=invoice"):
+        for path in ("/", "/docs", "/openapi.json", "/api/documents", "/api/search?q=invoice",
+                     "/api/exports", "/api/exports/missing/csv"):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 401)
@@ -29,6 +30,7 @@ class HostedTests(unittest.TestCase):
                 self.assertEqual(response.headers["Cache-Control"], "no-store")
         self.assertEqual(self.client.get("/api/documents", auth=("reviewer", "incorrect")).status_code, 401)
         response = self.client.get("/docs", auth=self.auth)
+        self.assertEqual(401, self.client.post("/api/exports", json={}).status_code)
         self.assertEqual(response.status_code, 200)
         self.assertIn("default-src", response.headers["Content-Security-Policy"])
         self.assertIn("max-age", response.headers["Strict-Transport-Security"])
@@ -36,6 +38,9 @@ class HostedTests(unittest.TestCase):
     def test_cross_origin_write_and_request_bound(self):
         response = self.client.patch("/api/invoices/1", auth=self.auth,
                                      headers={"Origin": "https://example.invalid"}, json={})
+        self.assertEqual(response.status_code, 403)
+        response = self.client.post("/api/exports", auth=self.auth,
+                                    headers={"Origin": "https://example.invalid"}, json={})
         self.assertEqual(response.status_code, 403)
         response = self.client.patch("/api/invoices/1", auth=self.auth,
                                      headers={"Content-Length": "999999999"}, json={})

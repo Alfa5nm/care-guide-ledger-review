@@ -53,4 +53,34 @@ CREATE TABLE IF NOT EXISTS search_vectors (
     document_id TEXT PRIMARY KEY REFERENCES documents(id) ON DELETE CASCADE,
     vector TEXT NOT NULL
 );
-PRAGMA user_version = 2;
+CREATE TABLE IF NOT EXISTS duplicate_decisions (
+    identity TEXT PRIMARY KEY,
+    canonical_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+    members TEXT NOT NULL CHECK(json_valid(members)),
+    reason TEXT NOT NULL,
+    resolved_at REAL NOT NULL
+);
+CREATE VIEW IF NOT EXISTS current_duplicate_decisions AS
+SELECT decision.* FROM duplicate_decisions decision
+WHERE decision.members = (
+    SELECT json_group_array(json_array(member.id, member.revision))
+    FROM (SELECT id, revision FROM invoices WHERE duplicate_key=decision.identity ORDER BY id) member
+);
+CREATE TABLE IF NOT EXISTS invoice_approvals (
+    invoice_id INTEGER PRIMARY KEY REFERENCES invoices(id) ON DELETE CASCADE,
+    revision INTEGER NOT NULL,
+    approved_at REAL NOT NULL,
+    resolution_token REAL
+);
+CREATE TABLE IF NOT EXISTS export_batches (
+    id TEXT PRIMARY KEY,
+    created_at REAL NOT NULL,
+    row_count INTEGER NOT NULL CHECK(row_count > 0),
+    content BLOB NOT NULL
+);
+CREATE TABLE IF NOT EXISTS exported_invoices (
+    identity TEXT PRIMARY KEY,
+    invoice_id INTEGER NOT NULL UNIQUE REFERENCES invoices(id),
+    batch_id TEXT NOT NULL REFERENCES export_batches(id)
+);
+PRAGMA user_version = 3;

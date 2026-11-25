@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import db
+from .export_review import current_decision, export_entry, review_state, router as export_router
 from .invoice import FIELDS, ITEM_FIELDS, clean_field, invoice_key, validate
 from .process import DocumentError, MAX_UNITS, SUFFIXES, source_preview
 from .search import index_document, search
@@ -41,6 +42,7 @@ async def startup(app):
 
 
 app = FastAPI(title="Ledger Review API", version="2.0.0", lifespan=startup, docs_url=None, redoc_url=None)
+app.include_router(export_router)
 
 
 @app.get("/docs", include_in_schema=False)
@@ -197,7 +199,18 @@ def list_documents(status: JobStatus | None = None, limit: int = Query(80, ge=1,
     with db.session() as conn:
         rows = conn.execute(
             f"""SELECT {SUMMARY},
-                       (SELECT count(*) FROM invoices i WHERE i.document_id=d.id) AS invoice_count
+                       (SELECT count(*) FROM invoices i WHERE i.document_id=d.id) AS invoice_count,
+                       (SELECT count(*) FROM invoices i WHERE i.document_id=d.id AND
+                           NOT EXISTS (SELECT 1 FROM exported_invoices exported WHERE exported.invoice_id=i.id)
+                           AND
+                           NOT EXISTS (SELECT 1 FROM current_duplicate_decisions decision
+                               WHERE decision.identity=i.duplicate_key AND decision.canonical_id<>i.id)
+                           AND (json_array_length(i.issues) > 0 OR (i.duplicate_key IS NOT NULL
+                           AND NOT EXISTS (SELECT 1 FROM current_duplicate_decisions decision
+                               WHERE decision.identity=i.duplicate_key) AND EXISTS (
+                               SELECT 1 FROM invoices other
+                               WHERE other.duplicate_key=i.duplicate_key AND other.id<>i.id
+                           )))) AS review_count
                 FROM documents d WHERE (? IS NULL OR status=?) ORDER BY created_at DESC LIMIT ? OFFSET ?""",
             (status, status, limit, offset),
         )
@@ -221,6 +234,7 @@ def get_document(conn, document_id):
 
 def invoice_detail(conn, row):
     result = dict(row)
+    result["review"] = review_state(conn, row)
     for field in ("data", "issues", "evidence"):
         result[field] = json.loads(result[field])
     result["evidence_pages"] = result["evidence"].pop("_pages", {})
@@ -233,7 +247,7 @@ def invoice_detail(conn, row):
             (key, result["id"]),
         ).fetchall()
         result["duplicates"] = [dict(record) for record in duplicates]
-        if duplicates:
+        if duplicates and result["review"]["status"] != "exported" and not current_decision(conn, key):
             result["issues"].append({"code": "duplicate_invoice", "field": "invoice_number",
                                      "message": "Another record has this supplier and invoice number."})
     else:
@@ -322,6 +336,8 @@ def correct_invoice(invoice_id: int, correction: Correction):
         row = conn.execute("SELECT * FROM invoices WHERE id=?", (invoice_id,)).fetchone()
         if row is None:
             raise HTTPException(404, "Invoice not found.")
+        if export_entry(conn, invoice_id):
+            raise HTTPException(409, "This exported invoice is read-only.")
         if row["revision"] != correction.revision:
             raise HTTPException(409, "This invoice was updated. Reload it before editing.")
         data = json.loads(row["data"])
@@ -351,6 +367,8 @@ def correct_invoice(invoice_id: int, correction: Correction):
                  (flag["code"] in REVIEW_FLAGS and flag.get("field") not in correction.changes)]
         conn.execute("UPDATE invoices SET data=?,duplicate_key=?,issues=?,revision=revision+1 WHERE id=?",
                      (json.dumps(data), invoice_key(data), json.dumps(flags + validate(data)), invoice_id))
+        conn.execute("DELETE FROM invoice_approvals WHERE invoice_id=?", (invoice_id,))
+        conn.execute("DELETE FROM duplicate_decisions WHERE identity IN (?,?)", (row["duplicate_key"], invoice_key(data)))
         conn.execute(
             "INSERT INTO invoice_corrections VALUES (?, ?, ?, ?, ?)",
             (invoice_id, row["revision"] + 1, time.time(), before_data, json.dumps(data)),

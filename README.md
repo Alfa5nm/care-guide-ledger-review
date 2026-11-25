@@ -1,8 +1,8 @@
 # Ledger Review
 
-A local document intelligence application for financial documents. Upload PDFs, scans, images, spreadsheets, and CSVs, then review extracted invoices, correct errors, and compare records across files.
+A local document intelligence application for financial documents. Upload PDFs, scans, images, spreadsheets, and CSVs, then review extraction evidence, resolve duplicates, and export approved invoices to CSV.
 
-[Assessment release branch](https://github.com/Alfa5nm/care-guide-ledger-review/tree/assessment/railway-final) · [Verified implementation](https://github.com/Alfa5nm/care-guide-ledger-review/commit/77c6a15ae68600e3996b47765a0f18c6cc2df894) · [Railway demo](https://ledger-review-production.up.railway.app/). The readiness response includes the deployed Git revision in the X-Ledger-Revision header.
+[Interview release branch](https://github.com/Alfa5nm/care-guide-ledger-review/tree/assessment/interview-oriented-development) · [Original assessment branch](https://github.com/Alfa5nm/care-guide-ledger-review/tree/assessment/railway-final) · [Original Railway demo](https://ledger-review-production.up.railway.app/). Run the interview edition locally with the instructions below.
 
 ## Run locally
 
@@ -49,8 +49,9 @@ python -m tools.fixtures
 2. Open the scanned invoice to check OCR against the original in **Source preview**. Select **Expand** to see the page alongside extracted fields and evidence quotes. Use the page input or arrow keys to navigate the expanded viewer, **Rotate** to correct viewing orientation, and **Escape** to close. The preview supports PDF pages and image frames. Spreadsheets use **Extracted text**. Open the conflicting copy to see its arithmetic and duplicate flags.
 3. In the conflicting copy, select **Reconcile** and compare `CG-1001` against the original PDF or the workbook. Each comparison reports the identity check and equality, mismatch, or missing evidence per field.
 4. Edit the conflicting document’s total to `110` and save. The arithmetic flag clears. The duplicate flag remains because the supplier and invoice number still match another record.
-5. Search for `freight` in semantic mode to find an invoice that says `Shipping fee`. Select keyword mode to compare literal filtering.
-6. Retry the corrupt PDF and expand **Processing history**. The new attempt is recorded and the same corrupt file fails again.
+5. Select **Resolve duplicates**, choose the original supplier invoice, and record why it should be kept. In this example, the original supports a total of USD 110. All other copies of that identity are excluded.
+6. Open the original and select **Approve invoice**. Open **Exports**, then **Create CSV export**. Download the batch and check that it contains one invoice. The CSV remains available for re-download, and the exported record is locked.
+7. Search for `freight` in semantic mode to find an invoice that says `Shipping fee`. Select keyword mode to compare literal filtering. Retry the corrupt PDF and review the second failed attempt in **Processing history**.
 
 ## Extraction behavior
 
@@ -75,6 +76,11 @@ For an optional model-assisted pass, set `DOCINTEL_LLM_URL` to an OpenAI-compati
 | POST | `/api/documents/{id}/retry` | Requeue a failed document |
 | GET | `/api/search?q=freight&mode=semantic` | Search by terms or concepts |
 | GET | `/api/reconcile?left=1&right=2` | Compare two selected invoice IDs |
+| GET | `/api/invoices/{id}/duplicate-group` | Get candidate invoices with their current revisions |
+| POST | `/api/invoices/{id}/duplicate-resolution` | Keep the chosen invoice and save a reason for the exact group |
+| POST | `/api/invoices/{id}/approve` | Approve the current, valid invoice revision |
+| GET and POST | `/api/exports` | Inspect pending approvals and recent batches or create an immutable CSV batch |
+| GET | `/api/exports/{id}/csv` | Download the stored CSV unchanged |
 
 ## Verify
 
@@ -95,4 +101,4 @@ A shared deployment would need authentication and authorization, isolated parser
 
 ## Assessment deliverables
 
-See the [submission index](docs/SUBMISSION.md) for the architecture, schema, measured evaluation, test logs, AI disclosure and current captioned walkthrough. The [layout holdout report](docs/LAYOUT_EVALUATION.md) compares extraction to the previous release and documents the remaining errors.
+See the [interview edition](docs/INTERVIEW_EDITION.md) for the reviewer workflow and verification. The [layout holdout report](docs/LAYOUT_EVALUATION.md) compares extraction to the previous release and documents the remaining errors.

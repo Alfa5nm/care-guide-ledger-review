@@ -52,10 +52,15 @@ def verify(page, base, samples, frames, record=False, prefix=""):
         for name in names
     ])
     expect(page.get_by_role("status")).to_contain_text("5 queued")
+    batch = page.get_by_role("region", name="Current upload batch")
+    workbook = batch.get_by_role("listitem").filter(has_text="10-billing-workbook.xlsx")
+    expect(workbook.locator(".file-type-sheet .file-format")).to_have_text("XLSX")
+    expect(workbook).to_contain_text("Accepted")
     chapter("Batch upload", "The API queues each file independently and the worker reports progress.")
     bad = page.get_by_role("row").filter(has_text=prefix + "12-corrupt.pdf")
     expect(bad).to_contain_text("failed", timeout=60_000)
     expect(page.get_by_role("row").filter(has_text=prefix + "03-scanned-invoice.pdf")).to_contain_text("completed", timeout=60_000)
+    expect(page.get_by_role("row").filter(has_text="03-scanned-invoice.pdf").locator(".file-type-pdf .file-format")).to_have_text("PDF")
     chapter("Processing completed", "The scan was read by OCR. The broken PDF failed without stopping the other files.")
 
     page.get_by_role("button", name=prefix + "03-scanned-invoice.pdf", exact=True).click()
@@ -144,6 +149,53 @@ def verify(page, base, samples, frames, record=False, prefix=""):
     page.get_by_role("main").get_by_role("button", name="Search", exact=True).click()
     expect(page.get_by_role("button", name=prefix + "01-original-invoice.pdf", exact=True)).to_be_visible()
     chapter("Semantic search", 'Searching for "freight" finds invoices whose text says "Shipping fee".')
+    page.get_by_role("button", name=prefix + "01-original-invoice.pdf", exact=True).click()
+    page.get_by_role("button", name="Back to search", exact=True).click()
+    expect(page.get_by_role("searchbox")).to_have_value("freight")
+    expect(page.get_by_role("button", name=prefix + "01-original-invoice.pdf", exact=True)).to_be_visible()
+    page.get_by_role("navigation").get_by_role("button", name="Documents").click()
+    page.get_by_label("Filter job status").select_option("review")
+    expect(page.get_by_role("heading", name="Review queue")).to_be_visible()
+    filename = page.get_by_role("searchbox", name="Filter by filename")
+    filename.fill("no-such-ledger-filename")
+    expect(page.get_by_text("No documents match this filename.")).to_be_visible()
+    filename.fill("")
+    row = page.get_by_role("row").filter(has_text=prefix + "02-conflicting-copy.pdf")
+    expect(row).to_contain_text("Needs review")
+    chapter("Review queue", "Find flagged invoices by filename, then work through the queue one document at a time.")
+    row.get_by_role("button", name=prefix + "02-conflicting-copy.pdf", exact=True).click()
+    page.get_by_role("button", name="Next flagged document").click()
+    expect(page.get_by_role("heading", name=prefix + "01-original-invoice.pdf", exact=True)).to_be_visible()
+    if not prefix:
+        docs = page.request.get(base + "/api/documents").json()
+        original = next(doc for doc in docs if doc["name"] == "01-original-invoice.pdf")
+        invoice = page.request.get(base + "/api/documents/" + original["id"]).json()["invoices"][0]
+        page.get_by_role("button", name="Correct values").click()
+        page.get_by_role("textbox", name="Customer").fill("Local draft")
+        response = page.request.patch(base + "/api/invoices/" + str(invoice["id"]), data={
+            "revision": invoice["revision"], "changes": {"customer_name": "Saved elsewhere"},
+        })
+        assert response.ok
+        page.get_by_role("button", name="Save correction").click()
+        expect(page.get_by_role("alert")).to_contain_text("This invoice changed")
+        expect(page.get_by_role("textbox", name="Customer")).to_have_value("Local draft")
+        page.get_by_role("button", name="Reload latest values").click()
+        expect(page.get_by_text("Saved elsewhere", exact=True)).to_be_visible()
+        page.get_by_role("button", name="Documents", exact=True).last.click()
+        page.get_by_label("Filter job status").select_option("")
+        files = [("04-low-contrast.jpg", "image", "JPG"), ("05-invoice-image.png", "image", "PNG"),
+                 ("09-register.csv", "csv", "CSV"), ("11-legacy-ledger.xls", "sheet", "XLS")]
+        page.locator('input[type="file"]').set_input_files([
+            {"name": name, "mimeType": "application/octet-stream", "buffer": (samples / name).read_bytes()}
+            for name, _, _ in files
+        ] + [{"name": "unknown.constructor", "mimeType": "text/plain", "buffer": b"unsupported"}])
+        expect(batch.get_by_role("listitem").filter(has_text="unknown.constructor")).to_contain_text("Rejected")
+        expect(batch.locator(".file-type-logo .file-format")).to_have_text("File")
+        for name, kind, label in files:
+            expect(batch.get_by_role("listitem").filter(has_text=name).locator(
+                f".file-type-{kind} .file-format")).to_have_text(label)
+            uploaded = page.get_by_role("row").filter(has_text=name)
+            expect(uploaded.locator(f".file-type-{kind} .file-format")).to_have_text(label)
     assert not errors, errors
 
 

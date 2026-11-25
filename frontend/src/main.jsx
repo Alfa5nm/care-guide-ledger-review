@@ -9,6 +9,12 @@ const fields = {
   line_items: 'Line items'
 };
 const itemFields = { description: 'Description', quantity: 'Qty', unit_price: 'Unit price', amount: 'Amount' };
+const jobFilters = [['', 'All statuses'], ['review', 'Needs review'], ['active', 'In progress'],
+  ['completed', 'Completed'], ['failed', 'Failed']];
+const fileTypes = {
+  pdf: 'pdf', jpg: 'image', jpeg: 'image', png: 'image', tif: 'image', tiff: 'image',
+  xlsx: 'sheet', xls: 'sheet', csv: 'csv',
+};
 
 function transition(update) {
   if (!document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -22,13 +28,25 @@ async function api(path, options) {
   const response = await fetch('/api' + path, options);
   const body = response.headers.get('content-type')?.includes('application/json')
     ? await response.json() : null;
-  if (!response.ok || !body) throw new Error(typeof body?.detail === 'string' ? body.detail : 'Ledger Review could not complete the request. Try again.');
+  if (!response.ok || !body) {
+    const error = new Error(typeof body?.detail === 'string' ? body.detail : 'Ledger Review could not complete the request. Try again.');
+    error.status = response.status;
+    throw error;
+  }
   return body;
+}
+
+function post(path, data = {}) {
+  return api(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
 }
 
 function Icon({ name }) {
   const paths = {
     logo: ['M7 3h7l5 5v13H5V3h2z', 'M14 3v6h5M8 13h8M8 17h5'],
+    pdf: ['M14 3H5v18h14V8zM14 3v5h5', 'M8 17c3 0 5-6 4-6s0 6 4 5c1-1-4-2-7 0-1 1-1 2 0 2'],
+    image: ['M4 5h16v14H4z', 'm4 11 4-4 5 5 3-3 4 4', 'M16 9h.01'],
+    sheet: ['M5 3h14v18H5zM5 8h14M5 12h14M5 16h14M11 8v13'],
+    csv: ['M5 3h9l5 5v13H5zM14 3v5h5', 'M8 12h2m3 0h3M8 16h2m3 0h3'],
     documents: ['M8 3h8l4 4v13H8z', 'M5 6H4v15h12M15 3v5h5'],
     search: ['M20 20l-5-5', 'M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0z'],
     upload: ['M12 16V3m-5 5 5-5 5 5', 'M4 16v4h16v-4'],
@@ -45,6 +63,15 @@ function Icon({ name }) {
   return <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name].map(path => <path key={path} d={path}/>)}</svg>;
 }
 
+function FileType({ name }) {
+  const extension = /\.([a-z0-9]+)$/i.exec(name)?.[1].toLowerCase() || '';
+  const type = Object.hasOwn(fileTypes, extension) ? fileTypes[extension] : 'logo';
+  return <span className={`file-type file-type-${type}`}>
+    <span className="file-icon"><Icon name={type}/></span>
+    <span className="file-format">{type === 'logo' ? 'File' : extension.toUpperCase()}</span>
+  </span>;
+}
+
 function Status({ value }) {
   return <span className={'status ' + value.toLowerCase().replaceAll(' ', '-')}><i/>{value}</span>;
 }
@@ -54,26 +81,31 @@ function Upload({ onUpload, notify }) {
   const dragDepth = useRef(0);
   const [sending, setSending] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [batch, setBatch] = useState([]);
   async function send(files) {
     if (!files.length || sending) return;
     if (files.length > 12) return notify('Select up to 12 files per upload.', true);
+    const selected = Array.from(files);
+    setBatch(selected.map(({name}) => ({name, status: 'Sending'})));
     setSending(true);
     try {
       const source = new FormData();
-      Array.from(files).forEach(file => source.append('files', file));
+      selected.forEach(file => source.append('files', file));
       const result = await api('/documents', { method: 'POST', body: source });
+      setBatch(result.files.map(file => ({name: file.name, status: file.id ? 'Accepted' : 'Rejected', reason: file.error})));
       const queued = result.files.filter(file => file.id).length;
-      const errors = result.files.filter(file => file.error).map(file => file.name + ' — ' + file.error);
-      notify(queued + ' queued.' + (errors.length ? ' ' + errors.join(' · ') : ''), Boolean(errors.length));
+      const rejected = result.files.length - queued;
+      notify(queued + ' queued.' + (rejected ? ` ${rejected} rejected. See Last upload for details.` : ''), Boolean(rejected));
       onUpload();
     } catch (error) {
+      setBatch(selected.map(({name}) => ({name, status: 'Unconfirmed'})));
       notify(error.message, true);
     } finally {
       setSending(false);
       if (input.current) input.current.value = '';
     }
   }
-  return <section className={'upload panel ' + (dragging ? 'dragging' : '')} aria-busy={sending}
+  return <div><section className={'upload panel ' + (dragging ? 'dragging' : '')} aria-busy={sending}
     onDragEnter={event => {
       if (!event.dataTransfer.types.includes('Files')) return;
       event.preventDefault();
@@ -94,17 +126,28 @@ function Upload({ onUpload, notify }) {
       {sending ? 'Uploading' : 'Choose files'}
     </button>
     <input hidden ref={input} type="file" multiple aria-label="Choose documents" accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif,.xlsx,.xls,.csv" onChange={event => send(event.target.files)}/>
-  </section>;
+  </section>
+    {batch.length > 0 && <section className="panel upload-files" aria-label="Current upload batch">
+      <h3>{sending ? 'Sending files' : 'Last upload'}</h3>
+      <ul>{batch.map(({name, status, reason}, index) => <li key={index}>
+        <FileType name={name}/>
+        <span className="upload-file-name">{name}{reason && <small>{reason}</small>}</span>
+        <Status value={status}/>
+      </li>)}</ul>
+    </section>}
+  </div>;
 }
 
-function DocumentTable({ docs, open, searchResults = false, morphId }) {
-  if (!docs.length) return <div className="empty"><Icon name={searchResults ? 'search' : 'documents'}/><p>{searchResults ? 'No documents match this search.' : 'No documents to show.'}</p></div>;
-  return <div className="table-wrap"><table><thead><tr><th>Document</th><th>Status</th><th>{searchResults ? 'Match' : 'Progress'}</th><th><span className="sr-only">Open</span></th></tr></thead>
+function DocumentTable({ docs, open, searchResults = false, morphId, emptyMessage }) {
+  if (!docs.length) return <div className="empty"><Icon name={searchResults ? 'search' : 'documents'}/><p>{emptyMessage || 'No documents match this search.'}</p></div>;
+  return <div className="table-wrap"><table className="document-table"><thead><tr><th>Document</th><th>Status</th><th>{searchResults ? 'Match' : 'Processing'}</th><th><span className="sr-only">Open</span></th></tr></thead>
     <tbody>{docs.map(doc => <tr key={doc.id}>
-      <td><button className="file" onClick={() => open(doc)}><span className="file-icon"><Icon name="logo"/></span>
+      <td><button className="file" aria-label={doc.name} onClick={() => open(doc)}><FileType name={doc.name}/>
         <span className={morphId === doc.id ? 'file-name morph-name' : 'file-name'}>{doc.name}</span></button></td>
-      <td><Status value={doc.status}/></td>
+      <td><Status value={doc.review_count ? 'Needs review' : doc.status}/></td>
       <td>{searchResults ? <span className="excerpt">{doc.excerpt}{doc.score !== undefined && <small> Score {doc.score}</small>}</span>
+        : doc.status === 'completed' ? <small>{doc.review_count ? `${doc.review_count} of ` : ''}{doc.invoice_count} {doc.invoice_count === 1 ? 'invoice' : 'invoices'}{doc.review_count ? ' flagged' : ''}</small>
+        : doc.status === 'failed' ? <small>Open to see the error</small>
         : <div className="progress-cell"><progress max="100" value={doc.progress} aria-label={doc.name + ' progress'}/><small>{doc.progress}% · {doc.stage}</small></div>}</td>
       <td><button className="icon-button" aria-label={'Open ' + doc.name} onClick={() => open(doc)}><Icon name="arrow"/></button></td>
     </tr>)}</tbody></table></div>;
@@ -150,6 +193,7 @@ function InvoiceView({ invoice, notify, onSaved, compare, guide, onGuide, spread
   const [draft, setDraft] = useState(null);
   const [busy, setBusy] = useState(false);
   const [receipt, setReceipt] = useState(null);
+  const [conflict, setConflict] = useState(false);
   const editor = useRef(null);
   const focusField = useRef(null);
   const data = draft || invoice.data;
@@ -184,16 +228,33 @@ function InvoiceView({ invoice, notify, onSaved, compare, guide, onGuide, spread
       await onSaved();
       notify('Correction saved. Validation updated.');
     } catch (error) {
+      if (error.status === 409) setConflict(true);
+      else notify(error.message, true);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function reload() {
+    setBusy(true);
+    try {
+      await onSaved();
+      setConflict(false);
+      setDraft(null);
+    } catch (error) {
       notify(error.message, true);
     } finally {
       setBusy(false);
     }
   }
   return <form ref={editor} onSubmit={save}>
+    {conflict && <div className="notice error" role="alert">
+      <span>This invoice changed while you were editing. Reloading will discard this draft.</span>
+      <button type="button" onClick={reload} disabled={busy}>Reload latest values</button>
+    </div>}
     <div className="section-head"><div><h2>{invoice.data.invoice_number || 'Unidentified invoice'}</h2><small>{invoice.source} · {invoice.extraction_method}</small></div>
-      <Status value={invoice.needs_review ? 'Needs review' : 'Checks passed'}/></div>
+      <Status value={reviewLabel(invoice)}/></div>
     {invoice.issues.length > 0 && <div className="flag-list"><h3>Validation flags</h3><ul>{invoice.issues.map((issue, index) => <li key={index}>
-      <button type="button" className="review-flag" onClick={() => review(issue)}>{issue.message}</button>
+      <button type="button" className="review-flag" onClick={() => review(issue)} disabled={invoice.review.status === 'exported'}>{issue.message}</button>
     </li>)}</ul></div>}
     {guide && <section className="review-evidence" aria-label="Guided exception review">
       <h3>{fields[guide.field] || 'Invoice'} evidence</h3>
@@ -218,10 +279,81 @@ function InvoiceView({ invoice, notify, onSaved, compare, guide, onGuide, spread
       {items.map((item, index) => <tr key={index}>{Object.keys(itemFields).map(key => <td key={key}>{draft ? <input aria-label={itemFields[key] + ' line ' + (index + 1)} value={item[key] ?? ''} onChange={event => itemChange(index, key, event.target.value)}/> : formatValue(item[key])}</td>)}
       {draft && <td><button type="button" onClick={() => setDraft({ ...draft, line_items: items.filter((_, i) => i !== index) })}>Remove</button></td>}</tr>)}
     </tbody></table></div> : <p className="muted">No line items extracted.</p>}
-    <div className="actions">{draft ? <><button key="save" type="submit" className="primary" disabled={busy}>Save correction</button><button type="button" onClick={() => setDraft(null)}>Cancel</button></>
-      : <><button key="edit" type="button" className="primary" onClick={event => { event.preventDefault(); setDraft({ ...invoice.data }); }}>Correct values</button><button type="button" onClick={() => compare(invoice)}><Icon name="compare"/> Reconcile</button></>}
+    <div className="actions">{draft ? <><button key="save" type="submit" className="primary" disabled={busy || conflict}>Save correction</button><button type="button" onClick={() => {setDraft(null); setConflict(false);}}>Cancel</button></>
+      : <>{invoice.review.status !== 'exported' && <button key="edit" type="button" className="primary" onClick={() => setDraft({ ...invoice.data })}>Correct values</button>}<button type="button" onClick={() => compare(invoice)}><Icon name="compare"/> Reconcile</button></>}
     </div>
+    {!draft && <ReviewActions invoice={invoice} notify={notify} onSaved={onSaved}/>}
   </form>;
+}
+
+function reviewLabel(invoice) {
+  const { status, can_approve } = invoice.review;
+  return { exported: 'Exported', excluded_duplicate: 'Excluded duplicate', approved: 'Approved' }[status]
+    || (can_approve ? 'Ready to approve' : 'Needs review');
+}
+
+function ReviewActions({ invoice, notify, onSaved }) {
+  const [group, setGroup] = useState(null);
+  const [canonical, setCanonical] = useState(invoice.id);
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const state = invoice.review;
+  async function run(action) {
+    setBusy(true);
+    try {
+      await action();
+    } catch (error) {
+      if (error.status === 409) {
+        setGroup(null);
+        await onSaved().catch(() => {});
+      }
+      notify(error.message, true);
+    } finally {
+      setBusy(false);
+    }
+  }
+  if (state.status === 'exported') return <section className="review-evidence">
+    <h3>Exported record</h3><p>This revision is locked.</p>
+    <a href={'/api/exports/' + state.batch_id + '/csv'}>Download export CSV</a>
+  </section>;
+  if (state.status === 'excluded_duplicate') return <section className="review-evidence">
+    <h3>Excluded from export</h3><p>{state.reason}</p>
+  </section>;
+  if (state.status === 'approved') return <p className="review-evidence" role="status">Approved and ready for CSV export.</p>;
+  if (state.prior_export) return <p className="review-evidence">This invoice identity is already in an export batch.</p>;
+  if (!state.can_resolve && !state.can_approve) return null;
+  return <section className="review-evidence">
+    <h3>Export review</h3>
+    {state.can_approve && <button className="primary" type="button" disabled={busy} onClick={() => run(async () => {
+      await post('/invoices/' + invoice.id + '/approve', { revision: invoice.revision });
+      await onSaved();
+      notify('Invoice approved.');
+    })}>Approve invoice</button>}
+    {state.can_resolve && !group && <button type="button" disabled={busy} onClick={() => run(async () => {
+      setGroup(await api('/invoices/' + invoice.id + '/duplicate-group'));
+    })}>Resolve duplicates</button>}
+    {group && <fieldset className="duplicate-options">
+      <legend>Choose the invoice to keep</legend>
+      {group.map(row => <label className="duplicate-choice" key={row.id}>
+        <input type="radio" name="duplicate-canonical" checked={canonical === row.id} onChange={() => setCanonical(row.id)}/>
+        <span><strong>{row.filename}</strong><small>{row.source} · Total {formatValue(row.total)}</small></span>
+      </label>)}
+      <label className="duplicate-reason">Decision reason
+        <textarea value={reason} maxLength={500} rows={2} onChange={event => setReason(event.target.value)}/>
+      </label>
+      <div className="actions">
+        <button type="button" className="primary" disabled={busy || !reason.trim()} onClick={() => run(async () => {
+          const members = Object.fromEntries(group.map(row => [row.id, row.revision]));
+          await post('/invoices/' + canonical + '/duplicate-resolution', { members, reason });
+          setGroup(null);
+          setReason('');
+          await onSaved();
+          notify('Duplicate decision saved.');
+        })}>Save duplicate decision</button>
+        <button type="button" onClick={() => setGroup(null)}>Cancel</button>
+      </div>
+    </fieldset>}
+  </section>;
 }
 
 function Compare({ left, docId, docs, close, notify }) {
@@ -269,11 +401,11 @@ function Compare({ left, docId, docs, close, notify }) {
     </form>
     {result && <><p className="comparison-note">{result.identity_match ? 'Supplier and invoice number match.' : 'Invoice identity is different or incomplete. Review the selected records.'}</p>
       <div className="table-wrap"><table><thead><tr><th>Field</th><th>{result.left_name}</th><th>{result.right_name}</th><th>Result</th></tr></thead>
-      <tbody>{result.fields.map(fact => <tr key={fact.field}><td>{fields[fact.field]}</td><td className="preline">{formatValue(fact.left)}</td><td className="preline">{formatValue(fact.right)}</td><td><Status value={fact.status}/></td></tr>)}</tbody></table></div></>}
+      <tbody>{[...result.fields].sort((a, b) => Number(b.status === 'different') - Number(a.status === 'different')).map(fact => <tr key={fact.field}><td>{fields[fact.field]}</td><td className="preline">{formatValue(fact.left)}</td><td className="preline">{formatValue(fact.right)}</td><td><Status value={fact.status}/></td></tr>)}</tbody></table></div></>}
   </section>;
 }
 
-function Detail({ id, name, docs, notify, refresh, back }) {
+function Detail({ id, name, docs, notify, refresh, back, fromSearch, next }) {
   const [doc, setDoc] = useState(null);
   const [page, setPage] = useState(0);
   const [invoices, setInvoices] = useState([]);
@@ -344,8 +476,11 @@ function Detail({ id, name, docs, notify, refresh, back }) {
     }
   }
   return <>
-    <button className="back" onClick={back}><Icon name="back"/> Documents</button>
-    <header className="heading detail-heading"><div><h1 className="morph-name">{doc?.name || name}</h1>
+    <div className="detail-actions">
+      <button className="back" onClick={back}><Icon name="back"/> {fromSearch ? 'Back to search' : 'Documents'}</button>
+      {next && <button className="next-review" onClick={next}>Next flagged document <Icon name="arrow"/></button>}
+    </div>
+    <header className="heading detail-heading"><div><div className="detail-file-title"><FileType name={doc?.name || name}/><h1 className="morph-name">{doc?.name || name}</h1></div>
       <p>{doc ? `${doc.stage} · ${doc.invoice_count} invoice ${doc.invoice_count === 1 ? 'record' : 'records'}${doc.processing_ms !== null ? ' · ' + doc.processing_ms + ' ms' : ''}` : 'Loading document…'}</p>
     </div>{doc && <Status value={doc.status}/>}</header>
     {doc && <>
@@ -366,7 +501,7 @@ function Detail({ id, name, docs, notify, refresh, back }) {
         {(doc.invoice_count > 1) && <div className="invoice-select"><select aria-label="Invoice record" value={current.id} onChange={event => {setSelected(Number(event.target.value)); setComparison(null);}}>
           {invoices.map(invoice => <option key={invoice.id} value={invoice.id}>{invoice.data.invoice_number || 'Unidentified'} · {invoice.source}</option>)}
         </select>{page > 0 && <button onClick={() => setPage(page - 100)}>Previous 100</button>}{page + 100 < doc.invoice_count && <button onClick={() => setPage(page + 100)}>Next 100</button>}</div>}
-        <InvoiceView key={current.id} invoice={current} notify={notify} onSaved={load}
+        <InvoiceView key={current.id} invoice={current} notify={notify} onSaved={async () => { await load(); await refresh(); }}
           guide={activeGuide} onGuide={startGuide} spreadsheet={canPreview ? null : () => {setShowGuidedText(true); readText(0);}}
           compare={invoice => {setComparison(invoice); show('compare');}}/>
         {activeGuide && !canPreview && showGuidedText && <section className="review-evidence" aria-label="Spreadsheet source">
@@ -508,6 +643,52 @@ function SourcePreview({ documentId, name, invoice, guide }) {
   </section>;
 }
 
+function ExportsView({ notify }) {
+  const [workspace, setWorkspace] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  async function load() {
+    try {
+      setWorkspace(await api('/exports'));
+      setError('');
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+  useEffect(() => { load(); }, []);
+  async function create() {
+    setBusy(true);
+    try {
+      const batch = await post('/exports');
+      notify(`Export created with ${batch.row_count} ${batch.row_count === 1 ? 'invoice' : 'invoices'}.`);
+    } catch (error) {
+      notify(error.message, true);
+    } finally {
+      await load();
+      setBusy(false);
+    }
+  }
+  return <>
+    <header className="heading"><div><h1>Exports</h1><p>Batch approved invoices for accounting and download previous CSVs.</p></div></header>
+    {error && <div className="notice error" role="alert">{error}<button onClick={load}>Retry</button></div>}
+    {workspace ? <>
+      <section className="panel export-panel"><div className="section-head"><h2>Ready to export ({workspace.pending.length})</h2>
+        <button className="primary" onClick={create} disabled={busy || !workspace.pending.length}>Create CSV export</button></div>
+        {workspace.pending.length ? <ul className="export-pending">{workspace.pending.map(row =>
+          <li key={row.invoice_id}><strong>{row.invoice_number}</strong> <span>{row.filename}</span></li>)}</ul>
+          : <p className="muted">No approved invoices are ready to export.</p>}
+      </section>
+      <section className="panel export-panel"><h2>Recent export batches</h2>
+        {workspace.batches.length ? <div className="table-wrap"><table>
+          <thead><tr><th scope="col">Created</th><th scope="col">Invoices</th><th scope="col">CSV</th></tr></thead>
+          <tbody>{workspace.batches.map(batch => <tr key={batch.id}><td>{new Date(batch.created_at * 1000).toLocaleString()}</td>
+            <td>{batch.row_count}</td><td><a href={'/api/exports/' + batch.id + '/csv'}>Download CSV</a></td></tr>)}</tbody>
+        </table></div> : <p className="muted">No export batches yet.</p>}
+      </section>
+    </> : !error && <p role="status">Loading exports…</p>}
+  </>;
+}
+
 function App() {
   const [view, setView] = useState('documents');
   const [selected, setSelected] = useState(null);
@@ -515,6 +696,8 @@ function App() {
   const [docs, setDocs] = useState([]);
   const [notice, setNotice] = useState(null);
   const [filter, setFilter] = useState('');
+  const [filename, setFilename] = useState('');
+  const [loaded, setLoaded] = useState(false);
   const [offline, setOffline] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem('ledger-sidebar') === 'collapsed');
   function toggleSidebar() {
@@ -528,6 +711,8 @@ function App() {
       setOffline(false);
     } catch {
       setOffline(true);
+    } finally {
+      setLoaded(true);
     }
   }
   useEffect(() => {
@@ -545,6 +730,15 @@ function App() {
     transition(() => { setSelected(doc); setNotice(null); });
   }
   const active = docs.filter(doc => doc.status === 'queued' || doc.status === 'processing').length;
+  const flagged = docs.filter(doc => doc.review_count > 0);
+  const visible = docs.filter(doc => {
+    if (!doc.name.toLowerCase().includes(filename.trim().toLowerCase())) return false;
+    if (filter === 'review') return doc.review_count > 0;
+    if (filter === 'active') return ['queued', 'processing'].includes(doc.status);
+    return !filter || doc.status === filter;
+  });
+  const nextFlagged = selected && filter === 'review' && visible.find(doc => doc.id !== selected.id &&
+    doc.created_at <= (docs.find(row => row.id === selected.id)?.created_at ?? Infinity));
   return <div className={'layout' + (sidebarCollapsed ? ' sidebar-collapsed' : '')}>
     <aside><div className="sidebar-header">
       <div className="brand"><div className="brand-mark"><Icon name="logo"/></div><span className="sidebar-label">Ledger Review</span></div>
@@ -555,14 +749,18 @@ function App() {
       <nav id="workspace-navigation" aria-label="Workspace">
         <button aria-label="Documents" title="Documents" aria-current={view === 'documents' ? 'page' : undefined} className={view === 'documents' ? 'active' : ''} onClick={() => navigate('documents')}><Icon name="documents"/><span className="sidebar-label">Documents</span></button>
         <button aria-label="Search" title="Search" aria-current={view === 'search' ? 'page' : undefined} className={view === 'search' ? 'active' : ''} onClick={() => navigate('search')}><Icon name="search"/><span className="sidebar-label">Search</span></button>
+        <button aria-label="Exports" title="Exports" aria-current={view === 'exports' ? 'page' : undefined} className={view === 'exports' ? 'active' : ''} onClick={() => navigate('exports')}><Icon name="csv"/><span className="sidebar-label">Exports</span></button>
       </nav>
       <div className="sidebar-foot" title={offline ? 'API unavailable' : 'Workspace connected'}><i className={offline ? 'off' : ''}/><span className="sidebar-label">{offline ? 'API unavailable' : 'Workspace connected'}</span></div>
     </aside>
     <main>
       {notice && <div className={'notice ' + (notice.error ? 'error' : '')} role={notice.error ? 'alert' : 'status'}>{notice.message}<button aria-label="Dismiss message" onClick={() => setNotice(null)}>×</button></div>}
-      {selected ? <Detail key={selected.id} id={selected.id} name={selected.name} docs={docs} notify={notify} refresh={refresh} back={() => navigate('documents')}/>
-      : view === 'search' ? <SearchView open={open} notify={notify} morphId={morphId}/>
-      : <>
+      {view === 'search' && <div hidden={Boolean(selected)}><SearchView open={open} notify={notify} morphId={morphId}/></div>}
+      {view === 'exports' && <ExportsView notify={notify}/>}
+      {selected && <Detail key={selected.id} id={selected.id} name={selected.name} docs={docs} notify={notify} refresh={refresh}
+        fromSearch={view === 'search'} back={() => navigate(view)}
+        next={filter === 'review' && view === 'documents' && nextFlagged ? () => open(nextFlagged) : null}/>}
+      {!selected && view === 'documents' && <>
         <header className="heading workspace-heading">
           <div><h1>Documents</h1><p>Upload invoices, review source evidence, and resolve discrepancies.</p></div>
           <a href="/docs">API documentation</a>
@@ -570,19 +768,28 @@ function App() {
         {offline && <p className="notice error" role="alert">The workspace is offline. Previously listed documents may be out of date.</p>}
         <section className="summary" aria-label="Job counts">
           {[
-            ['Recent documents', docs.length, 'documents', ''],
+            ['Needs review', flagged.length, 'documents', 'review'],
             ['In progress', active, 'clock', 'active'],
             ['Completed', docs.filter(doc => doc.status === 'completed').length, 'check', 'completed'],
             ['Failed', docs.filter(doc => doc.status === 'failed').length, 'alert', 'failed']
-          ].map(([label, count, icon, status]) => <button type="button" className={'panel metric metric-' + icon} key={label}
+          ].map(([label, count, icon, status]) => <button type="button" className={`panel metric metric-${icon} metric-filter-${status}`} key={label}
             aria-pressed={filter === status} onClick={() => setFilter(status)}>
             <span className="metric-icon"><Icon name={icon}/></span><span>{label}</span><strong>{count}</strong>
           </button>)}
         </section>
         <Upload onUpload={refresh} notify={notify}/>
-        <section className="panel"><div className="section-head activity"><h2>Recent uploads</h2>
-          <select aria-label="Filter job status" value={filter} onChange={event => setFilter(event.target.value)}><option value="">All statuses</option><option value="active">In progress</option>{['queued', 'processing', 'completed', 'failed'].map(status => <option key={status} value={status}>{status}</option>)}</select>
-        </div><DocumentTable key={filter} morphId={morphId} docs={docs.filter(doc => !filter || (filter === 'active' ? ['queued', 'processing'].includes(doc.status) : doc.status === filter))} open={open}/></section>
+        <section className="panel"><div className="section-head activity document-controls">
+          <div><h2>{filter === 'review' ? 'Review queue' : 'Recent uploads'}</h2>{loaded && <small>{visible.length} of {docs.length} documents</small>}</div>
+          <div className="document-filters">
+            <input type="search" aria-label="Filter by filename" placeholder="Filter by filename" value={filename} maxLength={240} onChange={event => setFilename(event.target.value)}/>
+            <select aria-label="Filter job status" value={filter} onChange={event => setFilter(event.target.value)}>
+              {jobFilters.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select>
+          </div>
+        </div><DocumentTable morphId={morphId} docs={visible} open={open} emptyMessage={!loaded ? 'Loading documents…'
+          : filename ? 'No documents match this filename.' : filter === 'review' ? 'No invoices need review.'
+          : filter ? 'No documents have this status.' : offline ? 'Documents are unavailable while the workspace is offline.'
+          : 'Upload a document to start reviewing.'}/></section>
       </>}
     </main>
   </div>;

@@ -27,7 +27,7 @@ def session(write=False):
 def initialize():
     (ROOT / "uploads").mkdir(parents=True, exist_ok=True)
     with session() as db:
-        if db.execute("PRAGMA user_version").fetchone()[0] > 2:
+        if db.execute("PRAGMA user_version").fetchone()[0] > 3:
             raise RuntimeError("The database schema is newer than this application.")
         db.execute("PRAGMA journal_mode=WAL")
         db.executescript("BEGIN IMMEDIATE;\n" + SCHEMA.read_text(encoding="utf-8") + "\nCOMMIT;")
