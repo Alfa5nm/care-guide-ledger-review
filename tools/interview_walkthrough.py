@@ -60,7 +60,12 @@ def verify(page, base, samples, output, record, holdout):
             element.dataset.walkHighlight = 'true';
             element.style.outline = '3px solid #247156'; element.style.outlineOffset = '3px';
         }""")
-        target.evaluate("el => el.scrollIntoView({block: 'nearest'})")
+        target.evaluate("""element => {
+            const bounds = element.getBoundingClientRect();
+            if (bounds.top < 0 || bounds.bottom > innerHeight - 145) {
+                element.scrollIntoView({block: 'center'});
+            }
+        }""")
 
     def cue(index, target=None):
         if not record:
@@ -118,7 +123,7 @@ def verify(page, base, samples, output, record, holdout):
     expect(page.get_by_role("region", name="Guided exception review")).to_contain_text("Total: 115")
     if record:
         highlight(total)
-        page.wait_for_timeout(2700)
+        page.wait_for_timeout(4100)
     total.fill("110")
     button("Save correction").click()
     receipt = page.get_by_role("region", name="Correction result")
@@ -133,21 +138,30 @@ def verify(page, base, samples, output, record, holdout):
     page.get_by_role("textbox", name="Decision reason").fill("Original supplier invoice supports USD 110.")
     if record:
         highlight(page.get_by_role("group", name="Choose the invoice to keep"))
-        page.wait_for_timeout(2600)
+        page.wait_for_timeout(5500)
     button("Save duplicate decision").click()
-    expect(page.get_by_role("heading", name="Excluded from export")).to_be_visible()
+    excluded = page.get_by_role("heading", name="Excluded from export")
+    expect(excluded).to_be_visible()
+    if record:
+        highlight(excluded)
+    wait_until(50)
     page.get_by_role("navigation").get_by_role("button", name="Documents").click()
     file(names[0])
     wait_until(53)
 
     cue(4, button("Approve invoice"))
     button("Approve invoice").click()
-    expect(page.get_by_text("Approved and ready for CSV export.")).to_be_visible()
+    approved = page.get_by_text("Approved and ready for CSV export.")
+    expect(approved).to_be_visible()
+    if record:
+        highlight(approved)
+        page.wait_for_timeout(1600)
     page.get_by_role("navigation").get_by_role("button", name="Exports").click()
+    page.evaluate("window.scrollTo(0, 0)")
     expect(page.get_by_role("heading", name="Ready to export (1)", exact=True)).to_be_visible()
     if record:
         highlight(button("Create CSV export"))
-        page.wait_for_timeout(2400)
+        page.wait_for_timeout(3600)
     button("Create CSV export").click()
     expect(page.get_by_text("Export created with 1 invoice.")).to_be_visible()
     link = page.get_by_role("link", name="Download CSV", exact=True)
